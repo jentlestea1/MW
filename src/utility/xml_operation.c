@@ -80,7 +80,11 @@ int get_op_list_length(void)
    mxml_node_t* node = NULL;
    const char* value = NULL;
 
-   node = mxmlFindElement(device_context, tree, "op_list", NULL, NULL, MXML_DESCEND);
+   node = mxmlFindElement(device_context, device_context, "op_list", NULL, NULL, MXML_DESCEND);
+   if(!check_null(__FILE__, __func__, "node", node)) {
+      printf("Detail: can't not find para_list item in xml file\n");
+      return -1;
+   }
    value = mxmlElementGetAttr(node, "length");
 
    return strtoul(value, NULL, 10);
@@ -92,7 +96,7 @@ int get_op_template_id(char* op_name)
    mxml_node_t* node = NULL;
    const char* value = NULL;
 
-   node = mxmlFindElement(device_context, tree, "op", "name", op_name, MXML_DESCEND);
+   node = mxmlFindElement(device_context, device_context, "op", "name", op_name, MXML_DESCEND);
    value = mxmlElementGetAttr(node, "template_id");
 
    return strtoul(value, NULL, 10);
@@ -122,7 +126,7 @@ static void create_op_name_list(void)
    op_list_length = get_op_list_length();
    
    //先查找到op_name对应的op项
-   op = mxmlFindElement(device_context, tree, "op", NULL, NULL, MXML_DESCEND);
+   op = mxmlFindElement(device_context, device_context, "op", NULL, NULL, MXML_DESCEND);
    
    op_name_list =(char**) malloc(sizeof(char*)*op_list_length);
    
@@ -147,7 +151,7 @@ int fill_reg_array(char* para_parent_name, char* para_name, struct reg_array* re
    struct reg *regp;
    const char* func = "fill_reg_array";
 
-   find_para_parent(para_parent_name, &para_parent);
+   if(!find_para_parent(para_parent_name, &para_parent)) return UNMATCH;
 
    //然后在op下找到para_name对应的para_list项，如果找不到则返回不匹配
    if(!find_para_list(para_name, para_parent, &para_list)) return UNMATCH;
@@ -174,7 +178,7 @@ find_para(mxml_node_t* para_parent, mxml_node_t* para_list, mxml_node_t** pp, co
     const char* func = "find_para";
     const char* value = name;
 
-    *pp = mxmlFindElement(para_list, para_parent, "para", attr, value, MXML_DESCEND);
+    *pp = mxmlFindElement(para_list, para_list, "para", attr, value, MXML_DESCEND);
     if (!check_null(__FILE__, __func__, "para", *pp)){
        (name == NULL) ? printf("Detail: can't find para child in xml file\n")
                       : printf("Detail: can't find para named '%s' in xml file\n", name);
@@ -225,12 +229,17 @@ static int do_fill_reg_array(mxml_node_t* para, struct reg_array* regap)
 }
 
 
-static void find_para_parent(char* para_parent_name, mxml_node_t** para_parent)
+static int find_para_parent(char* para_parent_name, mxml_node_t** para_parent)
 {
-   //没有必要检测para_parent, driver_match的find_and_exec_match_func会检测
    const  char* elem_name;
    (strcmp(para_parent_name, "global") != 0) ? (elem_name = "op") : (elem_name = "global") ; 
-   *para_parent = mxmlFindElement(device_context, tree, elem_name, "name", para_parent_name, MXML_DESCEND);
+   *para_parent = mxmlFindElement(device_context, device_context, elem_name, "name", para_parent_name, MXML_DESCEND);
+   if (!check_null(__FILE__, __func__, "para_parent", *para_parent)){
+       printf("Detail: can't find para_parent named '%s' in xml file\n", para_parent_name);
+       return FAILURE;
+   }
+   
+   return SUCCESS;
 }
 
 
@@ -240,7 +249,7 @@ static int find_para_list(char* para_name, mxml_node_t* para_parent, mxml_node_t
    const char* func = "find_para_list";
 
    //然后在op下找到para_name对应的para_list项，如果找不到则返回不匹配
-   *plp = mxmlFindElement(para_parent, device_context, "para_list",
+   *plp = mxmlFindElement(para_parent, para_parent, "para_list",
                                               "name", para_name, MXML_DESCEND);  
    if (!check_null(file, func, "para_list", *plp)){
        printf("Detail: can't find para_list item named '%s' in xml file\n", para_name);
@@ -292,7 +301,7 @@ int fill_plain_struct(char* para_parent_name, char* para_name,
    const char *value, *type;
    const char* func = "fill_plain_struct";
 
-   find_para_parent(para_parent_name, &para_parent);
+   if(!find_para_parent(para_parent_name, &para_parent)) return UNMATCH;
 
    //然后在op下找到para_name对应的para_list项
    if(!find_para_list(para_name, para_parent, &para_list)) return UNMATCH;
@@ -394,7 +403,7 @@ int fill_plain_array(char* para_parent_name, char* para_name, struct plain_array
 
 
    //先查找到op_name对应的op项，如果找不到则返回不匹配
-   find_para_parent(para_parent_name, &para_parent);
+   if(!find_para_parent(para_parent_name, &para_parent)) return UNMATCH;
 
    //然后在op下找到para_name对应的para_list项，如果找不到则返回不匹配
    if(!find_para_list(para_name, para_parent, &para_list)) return UNMATCH;
