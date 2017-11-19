@@ -52,6 +52,9 @@ int bind_drivers(void)
 
    }
 
+   //TODO bind完成后driver结构应该就没有用了
+   //应该释放掉
+   //malloc要有对应的free
     return SUCCESS;
 }
 
@@ -61,3 +64,6 @@ static void do_bind(struct device* devp, struct driver* drip)
     devp->device_operation = drip->device_operation;
     devp->private_data = get_template_data_table();
 }
+
+
+
