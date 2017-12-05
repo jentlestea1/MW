@@ -11,7 +11,6 @@ static const char* file = "driver_bind.c";
 int bind_drivers(void)
 {
 
-    // 依次处理设备索引表中的设备
     int i;
     unsigned int device_num = get_device_num();
     for (i=0; i<device_num; i++){
