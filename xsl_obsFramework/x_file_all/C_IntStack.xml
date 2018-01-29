@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!--================================================================-->
+<!-- Copyright 2003 P&P Software GmbH                               -->
+<!--================================================================-->
+
+<!--================================================================
+This is a descriptor for a stack container for elements of type:
+"integer".
+================================================================-->
+
+<StackContainerDescriptor name="CC_IntStack" classId="ID_INTSTACK">
+
+    <Type>int</Type>
+
+    <ObsFrameworkCodeDirPath>../</ObsFrameworkCodeDirPath>
+    
+</StackContainerDescriptor>

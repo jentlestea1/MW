@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!--================================================================-->
+<!-- Copyright 2003 P&P Software GmbH                               -->
+<!--================================================================-->
+
+<!--================================================================
+This is a descriptor for a stack container for elements of type:
+"pointer to CC_RootObject".
+================================================================-->
+
+<StackContainerDescriptor name="CC_RootObjectStack" classId="ID_ROOTOBJECTSTACK">
+
+    <Type headerFile="../Base/CC_RootObject.h">CC_RootObject*</Type>
+
+    <ObsFrameworkCodeDirPath>../</ObsFrameworkCodeDirPath>
+    
+</StackContainerDescriptor>
