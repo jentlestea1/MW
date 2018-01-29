@@ -6,6 +6,9 @@
 static const char* file = "driver.c";
 
  
+// 定义设备驱动索引表
+static struct driver_node* driver_index_table[MAX_DEVICE_TYPE];
+
 void driver_init(void)
 {
    memset(driver_index_table, 0, sizeof((void*)0)*MAX_DEVICE_TYPE);
@@ -16,7 +19,7 @@ void add_driver_node(struct driver_node** head, struct driver_node* node)
 {
    if (*head == NULL){
       *head = node;
-    }else{
+    } else {
       struct driver_node* tmp = *head;
         
       // 将该节点加入到链表的表尾
@@ -24,9 +27,8 @@ void add_driver_node(struct driver_node** head, struct driver_node* node)
          tmp = tmp->next;
       }
 
-         tmp->next = node;
+      tmp->next = node;
      }
-   
 }    
 
 
@@ -57,7 +59,7 @@ struct driver* get_driver(int index, char* device_interface)
           return drip;
       }
 
-     drinodp = drinodp->next;
+      drinodp = drinodp->next;
   }
 
     return NULL;
@@ -73,9 +75,9 @@ void release_drivers(void)
 
       while (drinodp != NULL){
          struct driver_node* to_be_released = drinodp;
-         free(to_be_released);
-
          drinodp = drinodp->next;
+
+         free(to_be_released);
       }
    }
 }
