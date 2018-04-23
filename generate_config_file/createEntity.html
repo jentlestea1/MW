@@ -1,0 +1,192 @@
+
+<div id="section1" class="container-fluid" style="display: block">
+<div id="device_content">
+    <div id="create" style="display: block">
+<form class="form-horizontal" role="form">
+    <div>
+    <br><br><br>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="id">设备uid:</label>
+        <div class="col-sm-9">
+            <input type="id" style="width: 500px" class="form-control" id="id" placeholder="键入设备uid，如001">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="type">设备类型：</label>
+        <div class="col-sm-9">
+            <input type="type" style="width: 500px" class="form-control" id="type" placeholder="键入设备类型，如星敏感器">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="model">设备型号：</label>
+        <div class="col-sm-9">
+            <input type="model" style="width: 500px" class="form-control" id="model" placeholder="键入设备型号，如XM1234">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="data_size">数据粒度大小：</label>
+        <div class="col-sm-9">
+            <input type="data_size" style="width: 500px" class="form-control" id="data_size" placeholder="键入数据粒度大小,以字节为单位">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="comment">设备其它属性：</label>
+        <div class="col-sm-9">
+        <textarea class="form-control" rows="5" id="comment" style="width: 500px" placeholder="设备的其它属性，以**:**;**:**的格式键入" onkeyup="this.value=this.value.replace(,'');"></textarea>
+        </div>
+    </div>
+</form>
+    <div class="col-sm-offset-3 col-sm-9">
+        <button  type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal" id="confirm">确认创建</button>
+        <button  class="btn btn-warning"  id="view">查看已创建外接设备</button>
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog" style="padding-top: 130px">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" style="color: #080808;font-weight: bolder">弹出框</h4>
+                    </div>
+                    <div class="modal-body">
+                        <h3 style="color: #080808;font-weight: bolder;display: none" align="center">创建成功！</h3>
+                        <h3 style="color: #080808;font-weight: bolder;display: none" align="center">创建失败,设备uid不能重复</h3>
+                        <h3 style="color: #080808;font-weight: bolder;display: none" align="center">创建失败,前四个为必填信息</h3>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    </div>
+<div class="container" id="createList" style="display: none">
+    <div>
+        <br>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>选择</th>
+            <th>设备uid</th>
+            <th>设备类型</th>
+            <th>设备型号</th>
+            <th>数据粒度大小</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <button class="btn btn-success" id="ret">返回</button>
+    <button class="btn btn-info" id="delete">删除所选</button>
+</div>
+</div>
+</div>
+
+<div id="section2" class="container-fluid" style="display: none">
+    <div id="IO_content">
+        <div id="IO_create" style="display: block">
+            <form class="form-horizontal" role="form">
+                <div>
+                    <br><br><br>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="IO_id">接口uid:</label>
+                    <div class="col-sm-9">
+                        <input type="id" style="width: 500px" class="form-control" id="IO_id">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="IO_type">接口类型：</label>
+                    <div class="col-sm-9">
+                        <input type="type" style="width: 500px" class="form-control" id="IO_type">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="IO_subAddr">接口子地址：</label>
+                    <div class="col-sm-9">
+                        <input type="type" style="width: 500px" class="form-control" id="IO_subAddr">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="IO_comment">接口属性：</label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" rows="5" id="IO_comment" style="width: 500px"></textarea>
+                    </div>
+                </div>
+            </form>
+            <div class="col-sm-offset-3 col-sm-9">
+                <button  type="button" class="btn btn-success" data-toggle="modal" data-target="#IO_myModal" id="IO_confirm">确认创建</button>
+                <button  class="btn btn-warning"  id="IO_view">查看已创建接口设备</button>
+                <!-- Modal -->
+                <div class="modal fade" id="IO_myModal" role="dialog" style="padding-top: 130px">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title" style="color: #080808;font-weight: bolder">弹出框</h4>
+                            </div>
+                            <div class="modal-body">
+                                <h3 style="color: #080808;font-weight: bolder;display: none" align="center">创建成功！</h3>
+                                <h3 style="color: #080808;font-weight: bolder;display: none" align="center">创建失败,相同类型接口uid不能重复</h3>
+                                <h3 style="color: #080808;font-weight: bolder;display: none" align="center">创建失败,前两个为必填信息</h3>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="container" id="IO_createList" style="display: none">
+            <div>
+                <br>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>选择</th>
+                    <th>接口uid</th>
+                    <th>接口类型</th>
+                    <th>接口子地址</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button class="btn btn-success" id="IO_ret">返回</button>
+            <button class="btn btn-info" id="IO_delete">删除所选</button>
+        </div>
+    </div>
+</div>
+<!--script type="text/javascript">
+                   var jump=function(route){
+                       var ajaxobj=new AJAXRequest;
+                   ajaxobj.method="GET";
+                   ajaxobj.url=route;
+                   ajaxobj.callback=function(xmlobj) {
+                       document.getElementById("des").innerHTML = xmlobj.responseText;
+                   }
+                   ajaxobj.send();
+                   }>
+                   /*
+                   var jump=function(){
+                       $("#des").load("./model.html",function(){
+                           $("#des").fadeIn(100);});
+                   }
+
+                   */
+                   $('div.accordion-heading').click(function () {
+                       $('#toggled').removeAttr('id');
+                       $(this).attr('id', 'toggled');
+                   });
+               </script-->
+

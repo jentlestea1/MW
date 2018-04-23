@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="dep/jquery.min.js"></script>
+    <script src="dep/bootstrap.min.js"></script>
+    <script type="text/JavaScript" src="./dep/ajaxrequest.js"></script>
+    <script src="js/views.js" charset="utf-8" type="text/javascript"></script>
+    <script src="js/createModel.js" charset="utf-8" type="text/javascript"></script>
+    <script src="dep/select2.js" charset="utf-8" type="text/javascript"></script>
+    <link rel="stylesheet" href="css/select2.css">
+    <script src="js/buildXMLConfigFile.js" charset="utf-8" type="text/javascript"></script>
+    <script src="js/resourceInteract.js" charset="utf-8" type="text/javascript"></script>
+    <script src="dep/Blob.js" type="text/javascript"></script>
+    <script src="dep/FileSaver.js" type="text/javascript"></script>
+</head>
+<body background="img/bg_satellite.jpg" style="background-size: 1920px 1080px;" data-spy="scroll" data-target=".navbar" data-offset="50">
+<div class="container-fluid" style="padding-top: 10px;">
+    <div class="tab-content">
+        <div class="row content tab-pane fade" id="visualMode">
+            <div class="well well-sm col-sm-offset-2 col-sm-8" id="visualModeNavBar"
+                 style="background:rgba(255,255,255, 0.3); position: relative;">
+                <img src="img/deviceicon1.png"/>
+                <img data-toggle="pill" src="./img/listmode.png" id="returnToConsoleMode" align="right"
+                     href="#consoleMode"/>
+            </div>
+            <div class="well" id="visualModeDesk" style="border: none;background:rgba(0,0,0, 0);height: 620px;">
+
+            </div>
+        </div>
+        <div class="row content tab-pane fade in active" id="consoleMode">
+            <div class="col-sm-3 sidenav hidden-xs" id="console">
+                <h1 align="left" style="color: white">H P E C</h1>
+		<div><br></div>
+                <!--<div class="well" style="background-color:#faebcc;border:1px solid blue;;height:535px">
+                <h3 align="center">总线配置</h3>
+                <ul class="nav nav-pills nav-stacked">
+                    <br><br>
+                    <li class="active"><a href="#section1">配置</a></li>
+                    <br>
+                    <li><a href="#section2" onclick="jump()">设备</a></li>
+                    <li><a href="#section3">总线</a></li>
+                    <li><a href="#section3">I O</a></li>
+                    <br>
+                    <br>
+                    <li class="active"><a href="#section3">生成XML</a></li>
+                    <li><a href="#section3">查看XML</a></li>
+                </ul><br>
+                </div>
+                -->
+                <div class="well" style="background-color:rgba(30,72,112,0.3);border:1px solid blue;height:800px">
+                    <p>
+
+                    <h3 align="center" style="color:white">控制台</h3></p>
+                    <br>
+
+                    <div class="panel-group" id="accordion" style="background-color:rgba(47,79,79,0.5)">
+                        <div class="panel panel-default">
+                            <div class="accordion-heading" data-toggle="collapse" data-parent="#accordion"
+                                 href="#collapse1" id="toggled">
+                                <img class="accordion-icon" src='img/device.png' style="width: 30px;height: 30px"/>
+
+                                <div class="accordion-text" id="addEntity">添加硬件</div>
+                            </div>
+                            <div class="accordion-body collapse in" id="collapse1">
+                                <div class="panel-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <button id="addDeviceOrIO" data-toggle="pill" id="toConsoleMode"
+                                                    class="btn btn-danger" href="#createModelDesk"
+                                                    >设备/接口
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="accordion-heading" data-toggle="collapse" data-parent="#accordion"
+                                 href="#collapse2">
+                                <img class="accordion-icon" src='img/config.png' style="width: 30px;height: 30px"/>
+
+                                <div class="accordion-text">系统装配</div>
+                            </div>
+                            <div class="accordion-body collapse" id="collapse2">
+                                <div class="panel-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <button id="configIO" href="#configModelDesk" data-toggle="pill"
+                                                    class="btn btn-primary">配置接口
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="accordion-heading" data-toggle="collapse" data-parent="#accordion"
+                                 href="#collapse3">
+                                <img class="accordion-icon" src='img/xml.png' style="width: 30px;height: 30px"/>
+
+                                <div class="accordion-text">配置文件</div>
+                            </div>
+                            <div class="accordion-body collapse" id="collapse3">
+                                <div class="panel-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <button id="buildXML" data-toggle="pill" type="button" class="btn btn-info"
+                                                    href="#buildXMLDesk">生成XML
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="accordion-heading" data-toggle="collapse" data-parent="#accordion"
+                                 href="#collapse4">
+                                <img class="accordion-icon" src='img/correct.png' style="width: 30px;height: 30px"/>
+
+                                <div class="accordion-text">可视化模式</div>
+                            </div>
+                            <div class="accordion-body collapse" id="collapse4">
+                                <div class="panel-body">
+                                    <ul class="list-group">
+
+                                        <li class="list-group-item">
+                                            <button type="button" id="toVisualMode" class="btn btn-success"
+                                                    data-toggle="pill" href="#visualMode">可视化
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9 sidenav hidden-xs" id="workPlace">
+                <h1 align="center" style="color:white">配 置 界 面</h1>
+		<div><br></div>
+                <div class="tab-content">
+                    <div id="createModelDesk" class="tab-pane fade">
+                        <div style="position: absolute; padding-top: 50px;width:90%;padding-left: 60px">
+                            <nav class="navbar navbar-inverse" data-spy="affix">
+                                <div class="container-fluid">
+                                    <div class="navbar-header">
+                                        <button type="button" class="navbar-toggle" data-toggle="collapse"
+                                                data-target="#myNavbar">
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                        </button>
+                                        <a class="navbar-brand" href="#">创建实体</a>
+                                    </div>
+                                    <div>
+                                        <div class="collapse navbar-collapse" id="myNavbar">
+                                            <ul class="nav navbar-nav">
+                                                <li><a>外接设备</a></li>
+                                                <li><a>总线接口</a></li>
+                                                <li><a>设备接口</a></li>
+                                                <li><a>RT设备</a></li>
+                                                <li><a>cpu芯片</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                        <div id="section1" class="well container-fluid" style="display: block;">
+                            <div id="device_content">
+                                <div id="create" style="display: block">
+                                    <form class="form-horizontal" role="form">
+                                        <div>
+                                            <br><br><br>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="id">设备uid：</label>
+
+                                            <div class="col-sm-9">
+                                                <input type="id" style="width: 500px" class="form-control" id="id"
+                                                       placeholder="输入设备uid，如001">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="type">设备类型：</label>
+
+                                            <div class="col-sm-9">
+                                                <input type="type" style="width: 500px" class="form-control" id="type"
+                                                       placeholder="输入设备类型，如星敏感器">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="model">设备型号：</label>
+
+                                            <div class="col-sm-9">
+                                                <input type="model" style="width: 500px" class="form-control" id="model"
+                                                       placeholder="输入设备型号，如XM1234">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="data_size">数据粒度大小：</label>
+
+                                            <div class="col-sm-9">
+                                                <input type="data_size" style="width: 500px" class="form-control"
+                                                       id="data_size" placeholder="输入数据粒度大小,以字节为单位">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="comment">设备其它属性：</label>
+
+                                            <div class="col-sm-9">
+                                                <textarea class="form-control" rows="5" id="comment"
+                                                          style="width: 500px"
+                                                          placeholder="设备的其它属性，以属性名:属性值;属性名:属性值的格式输入哦,注意':'为半角字符"></textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div class="col-sm-offset-3 col-sm-9">
+                                        <button type="button" class="btn btn-success" data-toggle="modal"
+                                                data-target="#myModal" id="confirm">确认创建
+                                        </button>
+                                        <button class="btn btn-warning" id="view">查看已创建外接设备</button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="myModal" role="dialog" style="padding-top: 130px">
+                                            <div class="modal-dialog">
+                                                <!-- Modal content-->
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close"
+                                                                data-dismiss="modal">&times;</button>
+                                                        <h4 class="modal-title"
+                                                            style="color: #080808;font-weight: bolder">弹出框</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建成功！</h3>
+
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建失败,设备uid不能重复</h3>
+
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建失败,前四个为必填信息</h3>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default"
+                                                                data-dismiss="modal">Close
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div id="createList" style="display: none;">
+                                    <div>
+                                        <br>
+                                    </div>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 50px">选择</th>
+                                            <th style="width: 50px">设备uid</th>
+                                            <th style="width: 50px">设备类型</th>
+                                            <th style="width: 50px">设备型号</th>
+                                            <th style="width: 50px">数据粒度大小</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                    <button class="btn btn-success" id="ret">返回</button>
+                                    <button class="btn btn-info" id="delete">删除所选</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="section2" class="well container-fluid" style="display: none">
+
+                            <div id="IO_content">
+                                <div id="IO_create">
+                                    <form class="form-horizontal" role="form">
+                                        <div>
+                                            <br><br><br>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="IO_id">接口uid：</label>
+
+                                            <div class="col-sm-9">
+                                                <input type="id" style="width: 500px" class="form-control" id="IO_id">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="IO_type">接口类型：</label>
+
+                                            <div class="col-sm-9">
+                                                <!--input type="type" style="width: 500px" class="form-control"
+                                                       id="IO_type"/>
+                                                <!--datalist id="list_bus">
+                                                    <option> 1553b</option>
+                                                    <option> rs422</option>
+                                                    <option> spi</option>
+                                                    <option> can</option>
+                                                    <option> i2c</option>
+                                                    <option> uart</option>
+                                                </datalist>
+                                                <datalist id="list_deviceIO">
+                                                    <option> ad</option>
+                                                    <option> da</option>
+                                                </datalist>
+                                                <datalist id="list_RT">
+                                                    <option>RT</option>
+                                                </datalist-->
+                                                <select style="width: 500px" class="form-control" id="IO_type">
+                                                    <optgroup label="总线接口">
+                                                        <option value="1">1553b</option>
+                                                        <option value="2">rs422</option>
+                                                        <option value="3">spi</option>
+                                                        <option value="4">uart</option>
+                                                        <option value="5">can</option>
+                                                        <option value="6">i2c</option>
+                                                    </optgroup>
+                                                    <optgroup label="设备接口">
+                                                        <option value="7">ad</option>
+                                                        <option value="8">da</option>
+                                                    </optgroup>
+                                                    <optgroup label="RT接口">
+                                                        <option value="9">RT</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="IO_subAddr">接口子地址：</label>
+
+                                            <div class="col-sm-9">
+                                                <input type="type" style="width: 500px" class="form-control"
+                                                       id="IO_subAddr">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="IO_comment">接口属性：</label>
+
+                                            <div class="col-sm-9">
+                                                <textarea class="form-control" rows="5" id="IO_comment"
+                                                          style="width: 500px"></textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div class="col-sm-offset-3 col-sm-9">
+                                        <button type="button" class="btn btn-success" data-toggle="modal"
+                                                data-target="#IO_myModal" id="IO_confirm">确认创建
+                                        </button>
+                                        <button class="btn btn-warning" id="IO_view">查看已创建接口设备</button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="IO_myModal" role="dialog"
+                                             style="padding-top: 130px">
+                                            <div class="modal-dialog">
+                                                <!-- Modal content-->
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close"
+                                                                data-dismiss="modal">&times;</button>
+                                                        <h4 class="modal-title"
+                                                            style="color: #080808;font-weight: bolder">弹出框</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建成功！</h3>
+
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建失败,接口重复创建</h3>
+
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建失败,前两个为必填信息</h3>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default"
+                                                                data-dismiss="modal">Close
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div id="IO_createList" style="display: none;position: relative">
+                                    <div>
+                                        <br>
+                                    </div>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>接口uid</th>
+                                            <th>接口类型</th>
+                                            <th>接口子地址</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                    <button class="btn btn-success" id="IO_ret">返回</button>
+                                    <button class="btn btn-info" id="IO_delete">删除所选</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="section7" class="well container-fluid" style="display: none;">
+                            <div id="cpu_content">
+                                <div id="cpu_create" style="display: block">
+                                    <form class="form-horizontal" role="form">
+                                        <div>
+                                            <br><br><br>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="id">uid：</label>
+
+                                            <div class="col-sm-9">
+                                                <input type="id" style="width: 500px" class="form-control" id="cpu_id"
+                                                       placeholder="输入cpu uid，如001">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3" for="cpu_model">型号：</label>
+
+                                            <div class="col-sm-9">
+                                                <input type="model" style="width: 500px" class="form-control"
+                                                       id="cpu_model"
+                                                       placeholder="输入cpu型号">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" id="addPort">
+                                            <label class="control-label col-sm-3" for="addPortIcon">添加端口：</label>
+
+                                            <div class="col-sm-9">
+                                                <img src="img/plus.png" style="width: 55px;height: 50px;cursor: pointer"
+                                                     class="form-control" id="addPortIcon"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="display: none" id="portSelectDiv">
+                                            <label class="control-label col-sm-3" for="portSelect"></label>
+                                            <div class="col-sm-3">
+                                                <select style="width: 180px" class="form-control" id="portSelect">
+                                                    <option value="0" style="text-align: left">#</option>
+                                                    <option value="1" style="text-align: left">IOPort</option>
+                                                    <option value="2" style="text-align: left">busPort</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-offset-0">
+                                                <select style="width: 180px" class="form-control">
+                                                    <optgroup label="#">
+                                                        <option value="0">#</option>
+                                                    </optgroup>
+                                                    <optgroup label="总线接口">
+                                                        <option value="1">1553b</option>
+                                                        <option value="2">rs422</option>
+                                                        <option value="3">spi</option>
+                                                        <option value="4">uart</option>
+                                                        <option value="5">can</option>
+                                                        <option value="6">i2c</option>
+                                                    </optgroup>
+                                                    <optgroup label="设备接口">
+                                                        <option value="7">ad</option>
+                                                        <option value="8">da</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div class="col-sm-offset-3 col-sm-9">
+                                        <button type="button" class="btn btn-success" data-toggle="modal"
+                                                data-target="#cpu_myModal" id="cpu_confirm">确认创建
+                                        </button>
+                                        <button class="btn btn-warning" id="cpu_view">查看已创建cpu芯片</button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="cpu_myModal" role="dialog"
+                                             style="padding-top: 130px">
+                                            <div class="modal-dialog">
+                                                <!-- Modal content-->
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close"
+                                                                data-dismiss="modal">&times;</button>
+                                                        <h4 class="modal-title"
+                                                            style="color: #080808;font-weight: bolder">弹出框</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建成功！</h3>
+
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建失败,uid不能重复</h3>
+
+                                                        <h3 style="color: #080808;font-weight: bolder;display: none"
+                                                            align="center">创建失败,前两个为必填信息</h3>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default"
+                                                                data-dismiss="modal">Close
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="cpu_createList" style="display: none;">
+                                    <div>
+                                        <br>
+                                    </div>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 50px">选择</th>
+                                            <th style="width: 50px">cpu uid</th>
+                                            <th style="width: 50px">cpu型号</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                    <button class="btn btn-success" id="cpu_ret">返回</button>
+                                    <button class="btn btn-info" id="cpu_delete">删除所选</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="configModelDesk" class="tab-pane fade">
+                        <div id="loadProgress" class="container-fluid"
+                             style="position: absolute;padding-left: 200px;padding-top: 200px;opacity: 0;display: none">
+                            <img src="img/loadprogress.gif" width="160px" height="160px"/>
+                        </div>
+                        <div id="section5" class="well well-lg container-fluid">
+                            <form class="form-horizontal col-sm-1" role="form">
+                                <div class="form-group">
+                                    <select style="width: 150px" class="form-control" id="select_scheme">
+                                        <optgroup label="选择方案">
+                                            <option value="0" style="text-align: left">新方案</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </form>
+                            <table id="configList" id="configTable" class="table table-bordered small">
+                                <thead>
+                                <tr>
+                                    <th align="center" style="width: 80px;">设备</th>
+                                    <th align="center" style="width: 140px;">接口1</th>
+                                    <th align="center" style="width: 140px;">接口2</th>
+                                    <th align="center" style="width: 140px;">接口3</th>
+                                    <th align="center" style="width: 140px;">接口4</th>
+                                    <th align="center" style="width: 140px;">接口5</th>
+                                    <th align="center" style="width: 140px;">接口6</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <button id="refreshConfigList" class="btn btn-primary col-sm-offset-2"
+                                    style="width: 150px;height: 70px">刷新
+                            </button>
+                            <button id="buildScheme" class="btn btn-warning col-sm-offset-1"
+                                    style="width: 150px;height: 70px">生成方案
+                            </button>
+                            <button id="deleteScheme" class="btn btn-warning col-sm-offset-1"
+                                    style="width: 150px;height: 70px">删除方案
+                            </button>
+                            <div id="listControl" style="display:none">
+                                <select>
+                                    <option name="selectIO">请选择接口</option>
+                                    <option name="ad" uid="001" type="deviceIO">ad 001</option>
+                                    <option name="da" uid="001" type="deviceIO">da 001</option>
+                                    <option name="da" uid="002" type="deviceIO">da 002</option>
+                                    <option name="rs422" uid="001" type="bus" channel="4">rs422 001;channel:4</option>
+                                    <option name="rs422" uid="001" type="bus" channel="5">rs422 001;channel:5</option>
+                                    <option name="rs422" uid="002" type="bus" channel="4">rs422 002;channel:4</option>
+                                    <option name="rs422" uid="002" type="bus" channel="7">rs422 002;channel:7</option>
+                                    <option name="uart" uid="001" channel="3" type="bus">uart 001;channel:3</option>
+                                    <option name="can" uid="001" type="bus">can 001</option>
+                                    <option name="can" uid="002" type="bus">can 002</option>
+                                    <option name="can" uid="003" type="bus">can 003</option>
+                                    <option name="spi" uid="001" type="bus">spi 001</option>
+                                    <option name="spi" uid="002" type="bus">spi 002</option>
+                                    <option name="spi" uid="003" type="bus">spi 003</option>
+                                    <option name="RT" uid="01" type="RT">RT 01</option>
+                                    <option name="RT" uid="02" type="RT">RT 02</option>
+                                    <option name="RT" uid="03" type="bus">RT 03</option>
+                                    <option name="RT" uid="04" type="bus">RT 04</option>
+                                    <option name="RT" uid="05" type="bus">RT 05</option>
+                                    <option name="1553b" uid="001" type="bus">1553b 001</option>
+                                    <option name="ROOT">cpuUnit</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="configTip" role="dialog"
+                             style="padding-top: 80px;padding-left: 200px" aria-hidden="true" data-backdrop="static">
+                            <div class="modal-dialog">
+                                <!-- Modal content-->
+                                <form class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="modal-title">提示</h3>
+                                    </div>
+                                    <div class="modal-body" align="center" style="background-color: lightyellow"
+                                         id="tip">
+                                        <h3 class="modal-title">系统检测到方案内有设备被删除，不能再次生成方案</h3>
+
+                                        <h3 class="modal-title">请完善红色区域接口</h3>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-info" id="denyBuildProject"
+                                                data-dismiss="modal" style="width: 150px;">确定
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="inputPriorityAndBlockSize" role="dialog"
+                             style="padding-top: 80px;padding-left: 200px" aria-hidden="true" data-backdrop="static">
+                            <div class="modal-dialog">
+                                <!-- Modal content-->
+                                <form class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"
+                                            style="color: #080808;font-weight: bolder">请输入设备<label
+                                                id="dev_uid_label"></label>收/发数据块优先级和数据块大小</h5>
+                                    </div>
+                                    <div class="modal-body" align="center" style="background-color: lightyellow">
+
+                                        <div class="form-group">
+                                            <label class="control-label" for="in_priority">设备收数据块优先级:</label>
+                                            <select style="width: 200px" class="form-control" id="in_priority">
+                                                <optgroup label="设备收数据块优先级">
+                                                    <option value="1">100</option>
+                                                    <option value="2">200</option>
+                                                    <option value="3">300</option>
+                                                    <option value="4">400</option>
+                                                    <option value="5">500</option>
+                                                    <option value="6">600</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="in_blockSize">设备收数据块大小(B):</label>
+                                            <input style="width: 200px;" class="form-control" id="in_blockSize">
+                                            </input>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="out_priority">设备发数据块优先级:</label>
+                                            <select style="width: 200px" class="form-control" id="out_priority">
+                                                <optgroup label="设备发数据块优先级">
+                                                    <option value="1">100</option>
+                                                    <option value="2">200</option>
+                                                    <option value="3">300</option>
+                                                    <option value="4">400</option>
+                                                    <option value="5">500</option>
+                                                    <option value="6">600</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="out_blockSize">设备发数据块大小(B):</label>
+                                            <input style="width: 200px" class="form-control" id="out_blockSize">
+                                            </input>
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button id="setPriorityAndBlockSize" type="button" class="btn btn-info"
+                                                style="width: 150px;">确定
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="buildXMLDesk" class="tab-pane fade">
+                        <div id="section6" class="well container-fluid" style="background-color: rgba(47,79,79,0.5)">
+                            <div id="loadProgress_XML" class="container-fluid" style="display: none">
+                                <img src="img/loadprogress.gif" width="180px" height="180px"/>
+                            </div>
+                            <div class="container-fluid" style="position: relative;padding-top: 150px;"
+                                 id="XML_button_div">
+                                <button id="createXML_selScheme" class="btn btn-warning col-sm-offset-3"
+                                        style="width: 130px;height: 300px;"><h3>选择方案</h3>
+                                </button>
+                                <button id="createXML" class="btn btn-info col-sm-offset-1"
+                                        style="width:  130px;height: 300px;"><h3>生成XML</h3>
+                                </button>
+                                <button id="loadXMLFile" class="btn btn-primary col-sm-offset-1"
+                                        style="width:  130px;height: 300px;"><h3>下载XML</h3>
+                                </button>
+                            </div>
+                            <div class="modal fade col-sm-offset-2" id="XML_selectScheme_modal" role="dialog"
+                                 style="padding-top: 150px" aria-hidden="true" data-backdrop="static">
+                                <div class="modal-dialog">
+                                    <!-- Modal content-->
+                                    <form class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="modal-title">选择方案</h3>
+                                        </div>
+                                        <div class="modal-body" align="center" style="background-color: lightyellow">
+                                            <select style="width: 300px" class="form-control" id="XML_select_scheme">
+                                            </select>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-info" id="selectScheme_confirm"
+                                                    data-dismiss="modal" style="width: 150px;">确定
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="modal fade col-sm-offset-2" id="XMLFile_select_modal" role="dialog"
+                                 style="padding-top: 150px" aria-hidden="true" data-backdrop="static">
+                                <div class="modal-dialog">
+                                    <!-- Modal content-->
+                                    <form class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="modal-title">选择XML文件</h3>
+                                        </div>
+                                        <div class="modal-body" align="center" style="background-color: lightyellow">
+                                            <select style="width: 300px" class="form-control" id="XMLFile_select">
+                                                <option value="0">请选择文件</option>
+                                            </select>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-info" id="selectXMLFile_confirm"
+                                                    data-dismiss="modal" style="width: 150px;">确定
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>
+<script src="dep/require.js" defer async="true" data-main="js/main.js"></script>
+</body>
+</html>

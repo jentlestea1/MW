@@ -1,0 +1,114 @@
+
+div.accordion-heading:hover{
+    cursor: pointer;
+    background-image: url(../img/accordion_heading_hover.png);
+    color: #ffffff;
+}
+div.accordion-heading{
+     background-image: url(../img/accordion_heading1.png);
+ }
+img.accordion-icon{
+    float:left;
+}
+div.accordion-text{
+    font-size: 20px;
+    font-weight: bold;
+    padding-top:5px;
+    padding-left:80px;
+}
+div.accordion{
+    background-color: #eeeeee;
+    border-radius: 5px;
+}
+#toggled{
+    background-image: url(../img/accordion_heading_dimpink.png);
+    pointer-events:none;
+}
+div.accordion-body{
+    border-bottom: 1px solid white;
+    background-color: #eeeeee;
+}
+
+.affix {
+    top:0;
+    width: 100%;
+    z-index: 9999 !important;
+}
+.navbar {
+    position: relative;
+    margin-top: -55px;
+    width: 100%;
+}
+
+.affix ~ .container-fluid {
+
+    top: 100px;
+}
+#section1 {padding-top:50px;height:800px;color: #fff; background-color: rgba(30,72,112,1);overflow: scroll}
+#section2 {padding-top:50px;height:800px;color: #fff; background-color: rgba(103,58,183,1);overflow: scroll}
+#section3 {padding-top:50px;height:800px;color: #fff; background-color: rgba(255,152,0,1);overflow: scroll}
+#section4 {padding-top:50px;height:800px;color: #fff; background-color: rgba(0,188,228,1);overflow: scroll}
+#section5{padding-top:50px;height:800px;color: #fff;background-color:darkslategray;overflow: scroll}
+#section6{padding-top:50px;height:800px;color: #fff;background-color:darkslategray;overflow: scroll}
+#section7 {padding-top:50px;height:800px;color: #fff; background-color: rgba(150,155,20,1);overflow: scroll}
+#visualModeNavBar img{
+    width:80px;
+    height:70px;
+}
+#visualModeNavBar img:hover{
+    background-color: rgba(0,0,0,0.2);
+}
+#createList tbody tr:hover{
+    background-color: rgba(0,0,0,0.2);
+}
+#IO_createList tbody tr:hover{
+    background-color: rgba(0,0,0,0.2);
+}
+thead{
+   background-color: #66512c;
+}
+tbody{
+   background-color: lightgoldenrodyellow;color: #080808;
+}
+#myNavbar a{
+    cursor: pointer;
+}
+#accordion li{
+    background-color: white;
+    border-color: antiquewhite;
+}
+#accordion li.active{
+    background-color: white;
+    border-color: antiquewhite;
+}
+.table {
+    border-collapse:collapse;
+    width: 100%;
+}
+
+.table td{
+    border:1px solid #ccc;
+    overflow: hidden;
+}
+#collapse1 button{
+    width:100%;
+}
+#collapse2 button{
+    width:100%;
+}
+#collapse3 button{
+    width:100%;
+}
+#collapse4 button{
+    width:100%;
+}
+#section5 tbody tr:hover{
+    background-color: rgba(0,0,0,0.2);
+}
+select {
+    background: transparent;
+    border: none;
+    padding-left: 10px;
+    width: 120px;
+    height: 100%;
+}
