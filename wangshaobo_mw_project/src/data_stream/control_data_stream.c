@@ -8,7 +8,7 @@
 #include "handle_event.h"
 #include "address_map.h"
 #include "route_map.h"
-
+#include "string.h"
 
 void ctrl_app_write_data(UINT traffic_repos_id,char* dev_lid,unsigned char* buffer,UINT write_size,UINT* size){
     app_write_data_func(dev_lid,buffer,write_size,size);

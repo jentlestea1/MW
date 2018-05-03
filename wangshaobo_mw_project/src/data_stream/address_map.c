@@ -2,11 +2,22 @@
  *address_map.c,定义操作索引表的各种函数。
  */
 #include "address_map.h"
+#include "xml_parse.h"
 #include "handle_data_package.h"
 #include "relevant_struct_def.h"
 #include "handle_event.h"
 
-#define TRANS_SPACE_MAX_SIZE 0x800  //每个缓存区大小为2k*1dataNode
+#define TRANS_SPACE_MAX_SIZE 0x200  //每个缓存区大小为0.5k*1dataNode
+
+static f_index_list index_list_f;
+static s_index_list *index_list_s;
+//static s_index_list index_list_s[S_INDEX_LIST_MAX_NUM];
+static UINT index_list_s_len=0;
+static t_index_list *index_list_t;
+//static t_index_list index_list_t[T_INDEX_LIST_MAX_NUM];
+static UINT index_list_t_len=0;
+
+
 
 void create_index_list(void){
     /*
@@ -15,10 +26,13 @@ void create_index_list(void){
      * 发地址指针管理初始化收发地址指针为两端，向中间靠
      * 拢。
      */
+    int t_index_list_num_tmp=0;
     printf("正在创建三级索引表结构...\n");
     UINT form_num=get_form_num();
     int i=0;
     index_list_f.f_node_len=0;
+    index_list_f.f_node=(f_index_node*)malloc(form_num*sizeof(f_index_node));
+    index_list_s=(s_index_list*)malloc(sizeof(s_index_list)*form_num);
     for(;i<form_num;i++){
         void* form_item=get_forms_item(i);
         char* bus_lid=get_form_bus_lid(form_item);
@@ -27,18 +41,23 @@ void create_index_list(void){
         index_list_f.f_node_len++;
         strcpy(index_list_f.f_node[f_node_len].bus_type,bus_type);
         strcpy(index_list_f.f_node[f_node_len].bus_lid,bus_lid);
-        index_list_f.f_node[f_node_len].s_list_p=&index_list_s[index_list_s_len++];
+        index_list_f.f_node[f_node_len].s_list_p=&index_list_s[index_list_s_len];
         s_index_list* s_p_tmp=index_list_f.f_node[f_node_len].s_list_p;
         UINT RT_num=get_form_rule_section_len(form_item);
         s_p_tmp->s_node_len=0;
         int j=0;
+        index_list_s[index_list_s_len].s_node=(s_index_node*)malloc(sizeof(s_index_node)*RT_num);
+        index_list_t=(t_index_list*)realloc(index_list_t,(t_index_list_num_tmp+RT_num)*sizeof(t_index_list));
+        t_index_list_num_tmp+=RT_num;
+        index_list_s_len++;
+
         for(;j<RT_num;j++){
             void* RT_item=get_form_rule_section_item(form_item,j);
             char* RT_lid=get_form_rule_RT_lid(RT_item);
             strcpy(s_p_tmp->s_node[j].RT_lid,RT_lid);
             UINT s_node_len=s_p_tmp->s_node_len;
             s_p_tmp->s_node_len++;
-            s_p_tmp->s_node[s_node_len].t_list_p=&index_list_t[index_list_t_len++];
+            s_p_tmp->s_node[s_node_len].t_list_p=&index_list_t[index_list_t_len];
             t_index_list* t_p_tmp=s_p_tmp->s_node[s_node_len].t_list_p;
             UINT info_num=get_form_info_section_len(RT_item);
             void* p_s=(void*)malloc(sizeof(dataNode)*TRANS_SPACE_MAX_SIZE*info_num);
@@ -48,6 +67,8 @@ void create_index_list(void){
             }
             t_p_tmp->t_node_len=0;
             int k=0;
+            index_list_t[index_list_t_len].t_node=(t_index_node*)malloc(sizeof(t_index_node)*info_num);
+            index_list_t_len++;
             for(;k<info_num;k++){
                void* info_item=get_form_info_section_item(RT_item,k);
                char* dev_lid=get_form_info_dev_lid(info_item);

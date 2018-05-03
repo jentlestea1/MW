@@ -24,4 +24,5 @@ void vi_set_bus_enable(char* bus_lid);
 void vi_set_bus_disable(char* bus_lid);
 void vi_set_RT_enable(char* bus_lid,char* RT_lid);
 void vi_set_RT_disable(char* bus_lid,char* RT_lid);
+
 #endif

@@ -1,4 +1,4 @@
-#include "my_socket.h"
+#include "BC_socket.h"
 #include<stdio.h>  
 #include<stdlib.h>  
 #include<string.h>  
@@ -10,9 +10,16 @@
 #include "control_package.h"
 #include "handle_event.h"
 #include "config_1553.h"
-#include "my_RT_socket.h"
 #include<pthread.h>
+#include "BC_control.h"
 
+static unsigned char read_buf_1553[READ_BUF_1553_MAX_SIZE][BUF_MAX_LEN]={0};
+static bool is_read_buf_1553_avail[READ_BUF_1553_MAX_SIZE][RT_MAX_NUM]={0};
+
+//对每一个BC/RT，有且仅有一个收线程和一个发线程
+/*
+ *使用socket收发两端自由，没有遵循BC-RT模式
+ */
 void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){  
     usleep(500000);
     int    sockfd, n,rec_len;  
@@ -20,6 +27,7 @@ void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){
     void* p_config_node_tmp=get_config_node(config_id);
     UINT traffic_repos_id=get_config_node_traffic_repos_id(p_config_node_tmp);
     while(1){
+    //需要加同步锁模块，节省cpu资源
     if(!get_buffer_is_avail(config_id,RT_config_id))continue;
     if( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){  
     printf("create socket error: %s(errno: %d)\n", strerror(errno),errno);  
@@ -36,7 +44,7 @@ void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){
         set_buffer_unavail(config_id,RT_config_id);
             if(send(sockfd,read_buf_1553[config_id],strlen(read_buf_1553[config_id]),0) == -1)  
                 perror("send error");
-                memset(read_buf_1553[config_id],0,BUF_MAX_LEN);
+            memset(read_buf_1553[config_id],0,BUF_MAX_LEN);
     }
     close(sockfd);  
     }
@@ -50,7 +58,7 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
         UINT traffic_repos_id=get_config_node_traffic_repos_id(p_config_node_tmp);
         int    socket_fd, connect_fd;  
         struct sockaddr_in     servaddr;  
-        char    recv_buffer[4096];  
+        unsigned char    recv_buffer[4096];  
         int     recv_len;  
         if( (socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ){  
         printf("create socket error: %s(errno: %d)\n",strerror(errno),errno);  
@@ -67,16 +75,35 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
         if( listen(socket_fd, 10) == -1){  
         printf("listen socket error: %s(errno: %d)\n",strerror(errno),errno);  
         exit(0);  
-        }  
+        }
+        printf("等待与端口号为%d的RT建立连接\n",port);
         while(1){  
-    //阻塞直到有客户端连接，不然多浪费CPU资源。  
+        //阻塞直到有客户端连接，不然多浪费CPU资源。  
             if( (connect_fd = accept(socket_fd, (struct sockaddr*)NULL, NULL)) == -1){  
             printf("accept socket error: %s(errno: %d)",strerror(errno),errno);  
             continue;  
         }  
+        //printf("与端口号为 %d的RT建立连接\n",port);
+        memset(recv_buffer,0,4096);
         recv_len = recv(connect_fd, recv_buffer,MAXLINE, 0);  
         recv_buffer[recv_len] = '\0';
+        //printf("%d %d %d\n",recv_len,recv_buffer[0],recv_buffer[1]);
         if(recv_len!=0){
+            //printf("%d %d\n",recv_buffer[0],recv_buffer[1]);
+            if(recv_buffer[0]==0x0&&recv_buffer[1]==0xff){
+                //发送端口列表给RT
+                //printf("ttt\n");
+                memset(recv_buffer,0,4096);
+                UINT port_len=get_RT_sub_addr_array(port,(UINT *)(recv_buffer+4));
+                *(UINT *)recv_buffer=port_len;
+                //printf("%d %d %d",port_len,*(UINT*)(recv_buffer+4),*(UINT*)(recv_buffer+8));
+                if(send(connect_fd,recv_buffer,4096,0) == -1)  
+                    perror("发送RT端口子地址列表给RT失败\n");
+                else{
+                    printf("成功发送RT端口子地址列表给端口号为%d的RT\n",port);
+                }
+            }
+            else
                 ctrl_unpack_package_to_1553(traffic_repos_id,port,recv_buffer,recv_len);
         }  
         close(connect_fd);  
@@ -85,6 +112,7 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
 }
 
 void* scan_1553_RT_section_pthread_func(void* p_scan_config){
+    //实现一个扫描算法
     scan_config* p_scan_config_tmp=(scan_config*)p_scan_config;
     UINT config_id=p_scan_config_tmp->config_id;
     unsigned char* buffer=read_buf_1553[config_id];
@@ -123,40 +151,16 @@ void create_scan_1553_RT_section_unit(void* p_scan_config){
     else printf("成功创建RT section扫描线程，该扫描线程每20ms打包一次数据...\n");
 }
 
-void* RT_socket_pthread_func(void* p_socket_config){
-    socket_config* p_socket_config_tmp=(socket_config*)p_socket_config;
-    UINT port_tmp=p_socket_config_tmp->port;
-    pthread_t tid;
-    void* p_RT_con=get_one_port_con();
-    set_RT_port(p_RT_con,port_tmp);
-    int err=pthread_create(&tid,NULL,create_RT_socket_server,p_RT_con);
-    if(err!=0)printf("RT 收端创建线程失败...\n");
-}
 
-void* RT_ret_socket_pthread_func(void* p_socket_config){
-    socket_config* p_socket_config_tmp=(socket_config*)p_socket_config;
-    UINT port_tmp=p_socket_config_tmp->port;
-    if(port_tmp!=9000)return NULL;//9000测试用
-    pthread_t tid;
-    void* p_RT_con=get_one_port_con();
-    set_RT_port(p_RT_con,port_tmp);
-    int err=pthread_create(&tid,NULL,create_RT_ret_socket_client,p_RT_con);
-    if(err!=0)printf("RT 发端创建线程失败...\n");
-
-}
 
 void create_1553_bus_unit(void* p_socket_config){
     pthread_t tid1;
     pthread_t tid2;
-    pthread_t tid3;
-    pthread_t tid4;
-    UINT err1,err2,err3,err4=0;
+    UINT err1,err2;
     err1=pthread_create(&tid1,NULL,bus_ret_socket_pthread_func,p_socket_config);
-    err2=pthread_create(&tid2,NULL,RT_socket_pthread_func,p_socket_config);
-    err3=pthread_create(&tid4,NULL,RT_ret_socket_pthread_func,p_socket_config);
-    err4=pthread_create(&tid3,NULL,bus_socket_pthread_func,p_socket_config);
-    if(err1!=0||err2!=0||err3!=0||err4!=0)printf("创建1553模拟端口失败...\n");
-    else printf("成功创建了一个1553模拟端口...\n");
+    err2=pthread_create(&tid2,NULL,bus_socket_pthread_func,p_socket_config);
+    if(err1!=0||err2!=0)printf("启动1553模拟端口失败...\n");
+    else printf("成功启动一个1553模拟端口...\n");
 }
 
 bool get_buffer_is_avail(UINT config_id,UINT RT_config_id){
@@ -170,3 +174,95 @@ bool set_buffer_unavail(UINT config_id,UINT RT_config_id){
 bool set_buffer_avail(UINT config_id,UINT RT_config_id){
     is_read_buf_1553_avail[config_id][RT_config_id]=true;
 }
+
+UINT get_RT_addr_array(UINT * buf){
+    int i=0;
+    int count=0;
+    UINT len=get_config_len();
+    for(i=0;i<len;i++){
+       void* p_config_node_tmp=get_config_node(i);
+       UINT RT_num=get_config_node_len(p_config_node_tmp);
+       int j=0;
+       /*1553模拟器所需的部分*/
+       for(j=0;j<RT_num;j++){
+            UINT port_tmp=get_config_node_port(p_config_node_tmp,j);
+            buf[count++]=port_tmp;
+            //printf("%d ",port_tmp);
+       }
+    }
+    //printf("\ncount:%d\n",count);
+    return count;
+}
+
+
+void initialize_communicate(){
+    int    socket_fd, connect_fd;  
+    struct sockaddr_in  servaddr;  
+    unsigned char buffer[4096];  
+    int recv_len;  
+    if( (socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ){  
+        printf("create socket error: %s(errno: %d)\n",strerror(errno),errno);  
+        exit(0);  
+    }  
+    memset(&servaddr, 0, sizeof(servaddr));  
+    servaddr.sin_family = AF_INET;  
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);//IP地址设置成INADDR_ANY,让系统自动获取本机的IP地址。  
+    servaddr.sin_port = htons(7000);//
+    if( bind(socket_fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) == -1){  
+        printf("bus--bind socket error: %s(errno: %d)\n",strerror(errno),errno);  
+        exit(0);  
+    }  
+     if( listen(socket_fd, 10) == -1){  
+        printf("listen socket error: %s(errno: %d)\n",strerror(errno),errno);  
+        exit(0);  
+    }  
+    if( (connect_fd = accept(socket_fd, (struct sockaddr*)NULL, NULL)) == -1){  
+        printf("accept socket error: %s(errno: %d)",strerror(errno),errno);  
+    }
+    printf("与RT端成功建立连接\n");
+    recv_len = recv(connect_fd, buffer,MAXLINE, 0);  
+    buffer[recv_len] = '\0';
+    if(recv_len!=0){
+        if(buffer[0]==0x0&&buffer[1]==0xff){
+            //发送端口列表给RT
+            memset(buffer,0,4096);
+            UINT port_len=get_RT_addr_array((UINT *)(buffer+4));
+            *(UINT *)buffer=port_len;
+            //printf("%d %d",*(UINT *)(buffer),*(UINT *)(buffer+4));
+            if(send(connect_fd,buffer,4096,0) == -1)  
+                perror("发送RT端口列表给RT失败\n");
+        }
+        else{
+            printf("初始化RT线程失败\n");
+        }
+        close(socket_fd);  
+    }
+        close(socket_fd);  
+}
+
+void initialize_BC(){
+    int i=0;
+    UINT len=get_config_len();
+    for(i=0;i<len;i++){
+       scan_config* p_scan_config_tmp=(scan_config*)malloc(sizeof(scan_config));
+       p_scan_config_tmp->config_id=i;
+       create_scan_1553_RT_section_unit(p_scan_config_tmp);
+       void* p_config_node_tmp=get_config_node(i);
+       UINT RT_num=get_config_node_len(p_config_node_tmp);
+       UINT j=0;
+
+       /*1553模拟器所需的部分*/
+       for(;j<RT_num;j++){
+        usleep(100000);
+           UINT port_tmp=get_config_node_port(p_config_node_tmp,j);
+           socket_config* p_socket_config_tmp=(socket_config*)malloc(sizeof(socket_config));
+           p_socket_config_tmp->config_id=get_config_node_traffic_repos_id(p_config_node_tmp);
+           p_socket_config_tmp->RT_config_id=get_config_node_light_pos(p_config_node_tmp,j);
+           p_socket_config_tmp->port=port_tmp;
+           create_1553_bus_unit(p_socket_config_tmp);
+       }
+    }
+    printf("等待与RT端建立连接\n");
+    initialize_communicate();
+}
+

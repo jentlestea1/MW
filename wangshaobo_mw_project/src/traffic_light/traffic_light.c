@@ -4,6 +4,8 @@
 #include "traffic_light.h"
 #include "handle_data_package.h"
 #include "address_map.h"
+#include "stdlib.h"
+
 void* create_traffic_repos(char* bus_type,char* bus_lid){
     void* p_s_index_list=get_s_index_list(bus_type,bus_lid);
     UINT pos_tmp=0;

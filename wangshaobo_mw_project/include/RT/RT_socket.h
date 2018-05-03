@@ -8,11 +8,12 @@ typedef struct port_con{
     UINT port;
 }port_con;
 void* get_one_port_con();
-void create_RT_unit(UINT port,UINT child_port);
+void create_RT_unit(void* p_RT_config);
 void* create_RT_socket_server(void* port_con);
 void create_RT_socket_client(char* send_buffer,UINT port);
 void* create_RT_ret_socket_client(void* port_con);
 void set_RT_port(void* p_port_con,UINT port);
+void initialize_RT(void);
 void generate_data(void);
 void* generate_data_1(void* argc);
 void* generate_data_2(void* argc);

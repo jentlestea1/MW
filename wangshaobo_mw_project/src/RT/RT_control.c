@@ -1,11 +1,16 @@
 #include "RT_control.h"
 #include "relevant_struct_def.h"
-#include "handle_data_package.h"
-#include "config_1553.h"
-#include "route_map.h"
-#include "my_socket.h"
+#include "RT_socket.h"
 #include <unistd.h>
+#include "stdlib.h"
+#include "string.h"
+#include "stdio.h"
 
+static UINT s_pos[MOUNT_DEV_MAX_NUM]={0};
+static UINT e_pos[MOUNT_DEV_MAX_NUM]={0};
+static unsigned char write_buffer[MOUNT_DEV_MAX_NUM][CACHE_MAX_SIZE]={0};
+static UINT child_port_array[MOUNT_DEV_MAX_NUM]={0};
+static UINT len=0;
 void clear_write_buffer(){
     int i=0;
     for(;i<MOUNT_DEV_MAX_NUM;i++){
@@ -44,13 +49,14 @@ void read_write_buffer(UINT pos,unsigned char* buffer,UINT read_size,UINT* size)
     *size=size_tmp;
 }
 
-void init_port_array(UINT RT_physical_addr){
+//void init_port_array(UINT RT_physical_addr){
     /*
      * 根据RT_physical_addr找到RT_lid
      *依次按优先级找到其下的dev_lid,
      *再把每个dev相应的subaddr放到
      *child_port_array中
      */
+/*
     printf("正在为地址为%d的RT分配子地址...\n",RT_physical_addr);
     UINT config_1553_id=get_device_num_1553_bus_config_id(BC_device_num);
     if(config_1553_id==-1)return;
@@ -77,6 +83,19 @@ void init_port_array(UINT RT_physical_addr){
         printf("port:%d ",child_port_array[i]);
     }
     printf("完成子地址分配...\n");
+}
+*/
+
+void init_port_array(UINT *RT_sub_addr_array,UINT size){
+    int i=0;
+    if(size>=MOUNT_DEV_MAX_NUM){
+        printf("初始化RT端口不合法\n");
+    }
+    len=size;
+    for(i=0;i<size;i++){
+        child_port_array[i]=*(RT_sub_addr_array+i);
+        printf("child_port[%d]:%d\n",i,child_port_array[i]);
+    }
 }
 
 void pack_package(unsigned char* buffer,UINT buffer_len,UINT* buffer_size){

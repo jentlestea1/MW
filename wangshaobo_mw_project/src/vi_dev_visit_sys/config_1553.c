@@ -1,7 +1,13 @@
 #include "config_1553.h"
 #include "handle_data_package.h"
 #include "control_traffic_light.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#define CAN1553 1  //支持1553和can
 
+static config_node* p_config_node_list;
+static UINT config_len;
 void config_1553(){
     printf("注册1553...\n");
     UINT num_1553=get_form_num();
@@ -11,7 +17,11 @@ void config_1553(){
     for(;i<num_1553;i++){
         void* p_form_item= get_forms_item(i);
         char* bus_type_tmp=get_form_bus_type(p_form_item);
+#ifdef CAN1553
+        if(strcmp(bus_type_tmp,"1553b")!=0&&strcmp(bus_type_tmp,"can")!=0)continue;
+#else
         if(strcmp(bus_type_tmp,"1553b")!=0)continue;
+#endif
         char* bus_lid_tmp=get_form_bus_lid(p_form_item);
         UINT device_num_1553_tmp=get_1553_device_num(bus_type_tmp,bus_lid_tmp);
         UINT repos_pos_tmp=config_traffic_repos(bus_type_tmp,bus_lid_tmp);

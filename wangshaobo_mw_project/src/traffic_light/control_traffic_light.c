@@ -7,6 +7,10 @@
 #include "route_map.h"
 #include"address_map.h"
 #include<pthread.h>
+#include "stdio.h"
+#include "string.h"
+
+static traffic_light_repos* p_traffic_light_repos_array[TRAFFIC_REPOS_ARRAY_MAX_LEN];
 UINT config_traffic_repos(char* bus_type,char* bus_lid){
     int i=0;
     printf("正在为bus_type:%s,bus_lid:%s的总线创建交通灯库...\n",bus_type,bus_lid);

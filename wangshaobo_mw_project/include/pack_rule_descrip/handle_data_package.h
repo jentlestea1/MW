@@ -4,11 +4,11 @@
 #ifndef HANDLE_DATA_PACKAGE_H_
 #define HANDLE_DATA_PACKAGE_H_
 #include "m_type.h"
-#include "xml_parse.h"
+//#include "xml_parse.h"
 ///定义包转发规则表和接口
-#define DATA_TRANS_RULE_FORM_MAX_LEN 20
+#define DATA_TRANS_RULE_FORM_MAX_LEN 1
 #define RT_TRANS_RULE_MAX_LEN 32
-#define DEV_TRANS_DATA_INFO_MAX_LEN 50
+#define DEV_TRANS_DATA_INFO_MAX_LEN 32
 #define PRIORITY UINT
 #define BLOCK_SIZE UINT
 #define TRANS_DEV_MAX_SIZE 100
@@ -31,24 +31,16 @@ typedef struct dev_trans_data_info{
 typedef struct RT_trans_rule{
     char RT_lid[ATTR_LID_VALUE_MAX_LEN];
     UINT info_section_len;
-    dev_trans_data_info info_section[DEV_TRANS_DATA_INFO_MAX_LEN];
+    dev_trans_data_info *info_section;
+    //dev_trans_data_info info_section[DEV_TRANS_DATA_INFO_MAX_LEN];
 }RT_trans_rule;
 typedef struct data_trans_rule_form{
     char bus_lid[ATTR_LID_VALUE_MAX_LEN];
     char bus_type[ATTR_TYPE_VALUE_MAX_LEN];
     UINT rule_section_len;
-    RT_trans_rule rule_section[RT_TRANS_RULE_MAX_LEN];
+    RT_trans_rule *rule_section;
+    //RT_trans_rule rule_section[RT_TRANS_RULE_MAX_LEN];
 }data_trans_rule_form;
-static data_trans_rule_form form[DATA_TRANS_RULE_FORM_MAX_LEN];
-static char direct_trans_dev_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
-static char irdirect_trans_dev_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
-static char irdirect_trans_bus_type[TRANS_DEV_MAX_SIZE][ATTR_TYPE_VALUE_MAX_LEN];
-static char irdirect_trans_bus_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
-static char irdirect_trans_RT_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
-static UINT RT_trans_rule_pos=0;
-static UINT data_trans_rule_form_num=0;
-static UINT direct_trans_dev_num=0;
-static UINT irdirect_trans_dev_num=0;
 //static UINT priority_deterio_pos=0;
 void create_data_trans_rule_form(void);
 void print_form();

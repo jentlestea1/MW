@@ -1,14 +1,14 @@
 #ifndef CONFIG_1553_H_
 #define CONFIG_1553_H_
 #include "m_type.h"
-#include "xml_parse.h"
 #define READ_BUF_1553_MAX_SIZE 10
 #define PORT_ARRAY_MAX_SIZE 32
 #define RT_LID_ARRAY_MAX_SIZE 32
 #define RT_MAX_NUM RT_LID_ARRAY_MAX_SIZE
 #define LIGHT_POS_ARRAY_MAX_SIZE 32
-#define BUF_MAX_LEN 4096
+#define BUF_MAX_LEN 1024
 #define CONFIG_OVERFLOW 100000
+
 typedef struct config_node{
     char* bus_lid;
     UINT device_num_1553;
@@ -19,8 +19,6 @@ typedef struct config_node{
     //UINT sub_port_array[PORT_ARRAY_MAX_SIZE];//这里只支持一对一
     UINT light_pos_array[LIGHT_POS_ARRAY_MAX_SIZE];
 }config_node;
-static config_node* p_config_node_list;
-static UINT config_len;
 void config_1553(void);
 void* get_config_list_entry(void);
 void* get_config_node(UINT config_id);

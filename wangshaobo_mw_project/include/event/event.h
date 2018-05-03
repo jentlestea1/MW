@@ -3,7 +3,7 @@
 #include "m_type.h"
 #include "relevant_struct_def.h"
 #define EVT_TYPE UINT
-#define EVT_LIST_MAX_LEN 1000
+#define EVT_LIST_MAX_LEN 10
 #define REPOS_TYPE_1553_RET 1
 #define REPOS_TYPE_1553 2
 #define REPPOS_TYPE_RT 3

@@ -1,7 +1,7 @@
 #ifndef RELEVANT_STRUCT_DEF_H_
 #define RELEVANT_STRUCT_DEF_H_
 #include "m_type.h"
-#define CACHE_MAX_LEN 0x4000
+#define CACHE_MAX_LEN 0x400
 #define DATA_NODE_ARRY_MAX_LEN 
 typedef struct timeStamp{
     UINT year;

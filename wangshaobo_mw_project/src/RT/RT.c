@@ -1,19 +1,16 @@
-#include "manage_transport_center.h"
-#include "app.h"
+#include "RT_socket.h"
 #include<time.h>
-#include "file.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
-#include "my_RT_socket.h"
+#include "RT_socket.h"
+#include "file.h"
 int main(){
-    init_vi_dev_visit_sys();
-    app_read();
+    initialize_RT();
     time_t t;
     srand((unsigned)time(&t));
     generate_data();
     while(1){
-        //print_traffic_light();
         usleep(1000000);
         if(is_end_t()==6){
             usleep(2000000);
@@ -25,5 +22,6 @@ int main(){
             return 0;
         }
     }
+    
     return 0;
 }

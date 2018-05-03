@@ -4,6 +4,8 @@
 #include "handle_event.h"
 #include "control_traffic_light.h"
 #include "route_map.h"
+#include "string.h"
+#include "stdio.h"
 
 /*
  * 该函数负责将BC接到的数据解包然后调用数据流模块接口

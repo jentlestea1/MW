@@ -15,9 +15,24 @@
 #define DESCRIPTION_ITEM_MAX_LEN 20
 #define TAG_NAME_MAX_LEN 30
 
+static DeviceNode* DeviceList[DEVICE_LIST_MAX_LEN];
+static UINT DeviceListLen=0;         
+static UINT DeviceListPos=0;         
+static UINT DescripEntryPos=0;
+static UINT dev_attr_name_pos=0;
+static UINT dev_attr_value_pos=0;
+static UINT io_attr_name_pos=0;
+static UINT io_attr_value_pos=0;
+static UINT RT_trans_device_lid_pos=0;
+static UINT RT_trans_device_s_p_pos=0;
+static UINT RT_trans_device_s_b_pos=0;
+static UINT RT_trans_device_r_p_pos=0;
+static UINT RT_trans_device_r_b_pos=0;
+static char interface[INTERFACE_MAX_LEN];
+
 void parseXml(){
     printf("正在生成配置文件存储结构...\n");
-    FILE* fp=fopen("dev.xml","r");
+    FILE* fp=fopen("dev_new.xml","r");
     mxml_node_t* root=mxmlLoadFile(NULL,fp,MXML_NO_CALLBACK);
     char* device_tag="device_entity";
     mxml_node_t* dev_node_p=NULL;
@@ -287,11 +302,13 @@ mxml_node_t* findDependedNode(const char* content,UINT content_len,mxml_node_t* 
  *打印配置文件解析存储结构 
  */
 void printList(){
-printf("enter print...\n\n");
-    for(int i=0;i<get_devices_descrip_item_num();i++){
+printf("enter print...\n");
+printf("list len:%d\n",get_devices_descrip_item_num());
+int i=0;
+    for(i=0;i<get_devices_descrip_item_num();i++){
     printf("____________________________\n");
-    printf("enterpos: %d\n",DescripEntryPos);
-        void* dev_p=get_devices_descrip_item();
+    printf("enterpos: %d\n",i);
+        void* dev_p=get_device_list_item(i);
         printf("device lid:%s\n",get_device_lid(dev_p));
         printf("device type:%s\n",get_device_type(dev_p));
         printf("device interface:%s\n",get_device_interface(dev_p));
@@ -549,3 +566,26 @@ char* get_device_item_lid(void* dev_item){
     return ((DeviceNode*)dev_item)->descrip.lid;
 }
 
+void free_device_list(){
+    DeviceNode** pp=DeviceList;
+    int cnt=0;
+    int i=0;
+    for(i=0;i<get_device_list_item_num();i++){
+        DeviceNode* d_p=DeviceList[i];
+        if(d_p!=NULL){
+            IONode* i_p=d_p->next;        
+            free(d_p);
+            cnt++;
+            while(i_p!=NULL){
+                IONode* i_p_tmp=i_p;
+                i_p=i_p->next;
+                free(i_p_tmp);
+                cnt++;
+            }
+        }
+    }
+    for(i=0;i<get_devices_descrip_item_num();i++){
+        DeviceList[i]=NULL;
+    }
+    DeviceListLen=0;
+}

@@ -1,4 +1,6 @@
 #include "route_map.h"
+#include "stdlib.h"
+#include "string.h"
 
 void* get_route_node(){
     void* p_route_node=(void*)(route*)malloc(sizeof(route));

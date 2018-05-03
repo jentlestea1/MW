@@ -6,7 +6,20 @@
 #include "xml_parse.h"
 #include "handle_event.h"
 
+//static data_trans_rule_form form[DATA_TRANS_RULE_FORM_MAX_LEN];
+static data_trans_rule_form *form;
+//以下相当于字典映射
+static char direct_trans_dev_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
+static char irdirect_trans_dev_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
+static char irdirect_trans_bus_type[TRANS_DEV_MAX_SIZE][ATTR_TYPE_VALUE_MAX_LEN];
+static char irdirect_trans_bus_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
+static char irdirect_trans_RT_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
+static UINT RT_trans_rule_pos=0;
+static UINT data_trans_rule_form_num=0;
+static UINT direct_trans_dev_num=0;
+static UINT irdirect_trans_dev_num=0;
 void create_data_trans_rule_form(void){
+    parseXml();
     printf("正在创建包转发规则表...\n");
     UINT dev_num=get_device_list_item_num();
     int i=0;
@@ -46,6 +59,9 @@ void create_data_trans_rule_form(void){
         }
         else if(io_p!=NULL){//form未被创建
             /*需要新建表*/
+
+            form=(data_trans_rule_form*)realloc(form,sizeof(data_trans_rule_form)*(data_trans_rule_form_num+1));
+
             void* next_io_p=get_io_next_item(io_p);
             char* bus_lid=get_io_lid(next_io_p);
             char* bus_type=get_io_type(next_io_p);
@@ -54,8 +70,12 @@ void create_data_trans_rule_form(void){
             strcpy(form[data_trans_rule_form_num].bus_type,bus_type);
             form[data_trans_rule_form_num].rule_section_len=0;
             UINT rule_len=form[data_trans_rule_form_num].rule_section_len;
+            form[data_trans_rule_form_num].rule_section=(RT_trans_rule*)realloc(form[data_trans_rule_form_num].rule_section\
+                    ,(rule_len+1)*sizeof(RT_trans_rule));
             form[data_trans_rule_form_num].rule_section[rule_len].info_section_len=0;
             UINT info_len=form[data_trans_rule_form_num].rule_section[rule_len].info_section_len;
+            form[data_trans_rule_form_num].rule_section[rule_len].info_section=(dev_trans_data_info*)realloc\
+                    (form[data_trans_rule_form_num].rule_section[rule_len].info_section,(info_len+1)*sizeof(dev_trans_data_info));
             strcpy(form[data_trans_rule_form_num].rule_section[rule_len].RT_lid,get_io_lid(io_p));
             char* dev_lid_tmp=get_device_item_lid(dev_p);
             char* dev_map_subAddr_tmp=get_RT_trans_device_map_subAddr(dev_lid_tmp,io_p);
@@ -95,11 +115,16 @@ void create_data_trans_rule_form(void){
                     rule_len=form[data_trans_rule_form_num].rule_section_len;
                     pos_tmp=pos_tmp==-1?rule_len:pos_tmp;
                     if(pos_tmp==rule_len){
+                        //创建新的rule_len
+                        form[data_trans_rule_form_num].rule_section=(RT_trans_rule*)realloc(\
+                                form[data_trans_rule_form_num].rule_section,(rule_len+1)*sizeof(RT_trans_rule));
                         strcpy(form[data_trans_rule_form_num].rule_section[pos_tmp].RT_lid,get_io_lid(io_p_tmp));
                         form[data_trans_rule_form_num].rule_section[pos_tmp].info_section_len=0;
                         form[data_trans_rule_form_num].rule_section_len++;
                     }
                     info_len=form[data_trans_rule_form_num].rule_section[pos_tmp].info_section_len;
+                    form[data_trans_rule_form_num].rule_section[pos_tmp].info_section=(dev_trans_data_info*)realloc\
+                        (form[data_trans_rule_form_num].rule_section[pos_tmp].info_section,(info_len+1)*sizeof(dev_trans_data_info));
                     dev_lid_tmp=get_device_item_lid(dev_p_tmp);
                     dev_map_subAddr_tmp=get_RT_trans_device_map_subAddr(dev_lid_tmp,io_p_tmp);
                     int len=get_RT_trans_device_num(io_p_tmp);
@@ -127,6 +152,9 @@ void create_data_trans_rule_form(void){
       strcpy(irdirect_trans_dev_lid[irdirect_trans_dev_num++],dev_lid);
    }
     printf("创建包转发规则表结束...\n");
+    
+    //释放中间结构
+    //free_device_list();
 }
 
 /*

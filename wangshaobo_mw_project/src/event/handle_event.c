@@ -6,6 +6,8 @@
 #include<pthread.h>
 #include<stdio.h>
 #include "route_map.h"
+static void* p_repos_array[REPOS_MAX_LEN];
+static UINT is_repos_avail[REPOS_MAX_LEN]={0};
 
 void init_event_repos_array(){
     printf("初始化事件库仓库...\n");

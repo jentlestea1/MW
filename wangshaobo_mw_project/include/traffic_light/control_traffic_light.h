@@ -6,7 +6,6 @@
 #include "m_type.h"
 #include "traffic_light.h"
 #define TRAFFIC_REPOS_ARRAY_MAX_LEN 10
-static traffic_light_repos* p_traffic_light_repos_array[TRAFFIC_REPOS_ARRAY_MAX_LEN];
 void* get_traffic_repos_node(UINT traffic_repos_id);
 UINT  config_traffic_repos(char* bus_type,char* bus_lid);
 void config_traffic(void);
