@@ -1,12 +1,17 @@
 /*
  *control_traffic_light.c,定义操作交通灯数据结构的各种操作结构。
  */
+#include "compile_type.h"
 #include "control_traffic_light.h"
 #include "unistd.h"
 #include "handle_event.h"
 #include "route_map.h"
-#include"address_map.h"
-#include<pthread.h>
+#include "address_map.h"
+#ifdef __GCC_C99
+#include <pthread.h>
+#elif __SPARC_GCC_MMU
+#include <fsu_pthread.h>
+#endif
 #include "stdio.h"
 #include "string.h"
 
@@ -305,7 +310,11 @@ char* get_RT_section_RT_lid(UINT traffic_repos_id,UINT light_pos){
 
 void create_traffic_repos_scan_unit(void){
     pthread_t tid;
+#ifdef __GCC_C99
     int err=pthread_create(&tid,NULL,traffic_repos_scan_pthread_func,NULL);
+#elif __SPARC_GCC_MMU
+    int err=pthread_create(&tid,NULL,(pthread_func_t)traffic_repos_scan_pthread_func,NULL);
+#endif
     if(err!=0)printf("创建交通等库扫描线程失败...\n");
     else printf("成功创建交通灯库扫描线程,本扫描进程每50ms扫描一次所有的交通灯库...\n");
 }

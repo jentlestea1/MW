@@ -1,9 +1,14 @@
+#include "compile_type.h"
 #include "handle_event.h"
 #include "handle_event_func.h"
 #include "unistd.h"
 #include "relevant_struct_def.h"
 #include<stdlib.h>
+#ifdef __GCC_C99
 #include<pthread.h>
+#elif __SPARC_GCC_MMU
+#include<fsu_pthread.h>
+#endif
 #include<stdio.h>
 #include "route_map.h"
 static void* p_repos_array[REPOS_MAX_LEN];

@@ -1,3 +1,4 @@
+#include "compile_type.h"
 #include "BC_socket.h"
 #include<stdio.h>  
 #include<stdlib.h>  
@@ -10,7 +11,11 @@
 #include "control_package.h"
 #include "handle_event.h"
 #include "config_1553.h"
+#ifdef __GCC_C99
 #include<pthread.h>
+#elif __SPARC_GCC_MMU
+#include<fsu_pthread.h>
+#endif
 #include "BC_control.h"
 
 static unsigned char read_buf_1553[READ_BUF_1553_MAX_SIZE][BUF_MAX_LEN]={0};
@@ -146,7 +151,11 @@ void* bus_ret_socket_pthread_func(void* p_socket_config){
 
 void create_scan_1553_RT_section_unit(void* p_scan_config){
     pthread_t tid;
+#ifdef __GCC_C99
     int err=pthread_create(&tid,NULL,scan_1553_RT_section_pthread_func,p_scan_config);
+#elif __SPARC_GCC_MMU
+    int err=pthread_create(&tid,NULL,(pthread_func_t)scan_1553_RT_section_pthread_func,p_scan_config);
+#endif
     if(err!=0) printf("创建RT section描线程失败...\n");
     else printf("成功创建RT section扫描线程，该扫描线程每20ms打包一次数据...\n");
 }

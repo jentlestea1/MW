@@ -1,3 +1,4 @@
+//#include "compile_type.h"
 #include "file.h"
 #include<stdio.h>
 #include<stdlib.h> 
@@ -12,7 +13,12 @@
 #include<netinet/in.h>
 #include "relevant_struct_def.h"
 #include "RT_socket.h"
+#define __GCC_C99 1
+#ifdef __GCC_C99
 #include<pthread.h>
+#elif __SPARC_GCC_MMU
+#include<fsu_pthread.h>
+#endif
 
 void* create_RT_socket_server(void* RT_port){
         port_con* p_RT_port=(port_con*)RT_port;
@@ -96,6 +102,7 @@ void* create_RT_socket_server(void* RT_port){
                 void* p_time=get_time_node();
                 get_current_time(p_time);
                 print_time(p_time);
+
                 free_time_node(&p_time);
                 memset(send_buffer,0,4096);
             }
@@ -375,12 +382,21 @@ void* generate_data_7(void* argc){
 
 void generate_data(void){
     pthread_t tid;
+#ifdef __GCC_C99
     pthread_create(&tid,NULL,generate_data_1,NULL);
     pthread_create(&tid,NULL,generate_data_2,NULL);
     pthread_create(&tid,NULL,generate_data_4,NULL);
     pthread_create(&tid,NULL,generate_data_5,NULL);
     pthread_create(&tid,NULL,generate_data_6,NULL);
     pthread_create(&tid,NULL,generate_data_7,NULL);
+#elif __SPARC_GCC_MMU
+    pthread_create(&tid,NULL,(pthread_func_t)generate_data_1,NULL);
+    pthread_create(&tid,NULL,(pthread_func_t)generate_data_2,NULL);
+    pthread_create(&tid,NULL,(pthread_func_t)generate_data_4,NULL);
+    pthread_create(&tid,NULL,(pthread_func_t)generate_data_5,NULL);
+    pthread_create(&tid,NULL,(pthread_func_t)generate_data_6,NULL);
+    pthread_create(&tid,NULL,(pthread_func_t)generate_data_7,NULL);
+#endif
 }
 
 //下面两个函数创建RT的socket
@@ -401,7 +417,12 @@ void* RT_ret_socket_pthread_func(void* p_RT_config){
     pthread_t tid;
     //void* p_RT_con=get_one_port_con();
     //set_RT_port(p_RT_con,port_tmp);
-    int err=pthread_create(&tid,NULL,create_RT_ret_socket_client,p_RT_config);
+    int err;
+#ifndef __GCC_C99
+    err=pthread_create(&tid,NULL,create_RT_ret_socket_client,p_RT_config);
+#elif __SPARC_GCC_MMU
+    err=pthread_create(&tid,NULL,(pthread_func_t)create_RT_ret_socket_client,p_RT_config);
+#endif
     if(err!=0)printf("RT 发端创建线程失败...\n");
 }
 
@@ -409,8 +430,13 @@ void create_RT_unit(void* p_RT_config){
     pthread_t tid1;
     pthread_t tid2;
     UINT err1,err2=0;
+#ifdef __GCC_C99
     err1=pthread_create(&tid1,NULL,RT_socket_pthread_func,p_RT_config);
     err2=pthread_create(&tid2,NULL,RT_ret_socket_pthread_func,p_RT_config);
+#elif
+    err1=pthread_create(&tid1,NULL,(pthread_func_t)RT_socket_pthread_func,p_RT_config);
+    err2=pthread_create(&tid2,NULL,(pthread_func_t)RT_ret_socket_pthread_func,p_RT_config);
+#endif
     if(err1!=0||err2!=0)printf("创建RT模拟端口失败...\n");
     else printf("成功启动一个RT模拟端口,端口号:%d...\n",((port_con*)p_RT_config)->port);
 }

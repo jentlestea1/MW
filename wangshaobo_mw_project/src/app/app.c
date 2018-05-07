@@ -1,3 +1,4 @@
+#include "compile_type.h"
 #include "app.h"
 #include "manage_transport_center.h"
 #include<string.h>
@@ -6,7 +7,11 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include "relevant_struct_def.h"
+#ifdef __GCC_C99
 #include<pthread.h>
+#elif __SPARC_GCC_MMU
+#include<fsu_pthread.h>
+#endif
 
 void* app_write_pthread_func(void* argc){
     UINT times=10;
@@ -75,7 +80,7 @@ void* app_read_pthread_func_f(void* argc){
         write_buf[3]='\0';
         vi_app_write_data("003",write_buf,200,&write_size);
         if(write_size==0)printf("写错误\n");
-        //printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",write_buf[0],write_size,8003);
+        printf("位置：APP；类型：发送；数据：%lf；大小：%d；端口：%d\n",sum,write_size,8003);
         //printf("1-%d-\n",t++);
         free_time_node(&p_time_r);
     }
@@ -101,7 +106,7 @@ void* app_read_pthread_func_s(void* argc){
         write_buf[1]='\0';
         vi_app_write_data("004",write_buf,200,&write_size);
         if(write_size==0)printf("写错误\n");
-        //printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",write_buf[0],write_size,8004);
+        printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8004);
         //printf("2-%d-\n",t++);
         free_time_node(&p_time_r);
     }
@@ -143,8 +148,8 @@ void* app_read_pthread_func_t(void* argc){
         if(write_size==0)printf("写错误\n");
         vi_app_write_data("008",write_buf,200,&write_size);
         if(write_size==0)printf("写错误\n");
-        //printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",write_buf[0],write_size,8007);
-        //printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",write_buf[0],write_size,8008);
+        printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8007);
+        printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8008);
         //printf("3-%d-\n",t++);
         free_time_node(&p_time_r);
     }
@@ -154,9 +159,17 @@ void app_read(void){
     vi_set_RT_disable("001","02");
     vi_set_RT_enable("001","02");
     pthread_t tid1;
+#ifdef __GCC_C99
     pthread_create(&tid1,NULL,app_read_pthread_func_f,NULL);
     pthread_t tid2;
     pthread_create(&tid2,NULL,app_read_pthread_func_s,NULL);
     pthread_t tid3;
     pthread_create(&tid3,NULL,app_read_pthread_func_t,NULL);
+#elif __SPARC__GCC_MMU
+    pthread_create(&tid1,NULL,(pthread_func_t)app_read_pthread_func_f,NULL);
+    pthread_t tid2;
+    pthread_create(&tid2,NULL,(pthread_func_t)app_read_pthread_func_s,NULL);
+    pthread_t tid3;
+    pthread_create(&tid3,NULL,(pthread_func_t)app_read_pthread_func_t,NULL);
+#endif
 }

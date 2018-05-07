@@ -26,27 +26,28 @@ vpath %.h ./include/BC/
 
 CCFLAGS = -I ./include/type -I ./include/app -I ./include/RT/ -I ./include/data_stream/ -I ./include/file/ -I ./include/event -I ./include/package -I ./include/pack_rule_descrip -I ./include/traffic_light -I ./include/vi_dev_visit_sys -I ./include/xml_parser -I ./include/BC -DDEBUG
 ENDFALGS = -lmxml -lpthread -lm
-CC = cc 
+BC_CC = cc #sparc-elf-gcc #-std=c89 -pedantic -Wall -Wstrict-prototypes -Wno-missing-braces -O6 -I. $*
+RT_CC = cc
 BC_OBJ = main.o manage_transport_center.o app.o BC_socket.o BC_control.o package.o \
 		 control_package.o control_data_stream.o control_traffic_light.o traffic_light.o \
 		 data_stream.o handle_data_package.o xml_parse.o relevant_struct_def.o \
 		 address_map.o route_map.o config_1553.o handle_event.o event.o handle_event_func.o \
-		 file.o
+		 
 
-RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def.o file.o
+RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def_rt.o file.o
 
 all : BC RT
 	
 BC : $(BC_OBJ)
-	$(CC) -o BC $(BC_OBJ) $(ENDFALGS)
+	$(BC_CC) -o BC $(BC_OBJ) $(ENDFALGS)
 RT : $(RT_OBJ)
-	$(CC) -o RT $(RT_OBJ) $(ENDFALGS)
+	$(RT_CC) -o RT $(RT_OBJ) $(ENDFALGS)
 	mv *.o ./obj/
 $(BC_OBJ): %.o: %.c
-	$(CC) -c $(CCFLAGS) $< -o $@
+	$(BC_CC) -c $(CCFLAGS) $< -o $@
 $(RT_OBJ): %.o: %.c
-	$(CC) -c $(CCFLAGS) $< -o $@
+	$(RT_CC) -c $(CCFLAGS) $< -o $@
 
 .PHONY : clean
 clean:
-	rm BC RT ./obj/*.o ./*.o
+	rm -f BC RT ./obj/*.o ./*.o
