@@ -83,11 +83,11 @@ void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){
 #endif
         if(get_buffer_is_avail(config_id,RT_config_id)){
             set_buffer_unavail(config_id,RT_config_id);
-            if(vcan_send_data(read_buf_1553[config_id],read_buf_1553_size[config_id])==-1){
+            if(vcan_send_package(read_buf_1553[config_id],read_buf_1553_size[config_id])==-1){
                 printf("send data error\n");
         }
+        memset(read_buf_1553[config_id],0,read_buf_1553_size[config_id]);
         read_buf_1553_size[config_id]=0;
-        memset(read_buf_1553[config_id],0,BUF_MAX_LEN);
         }
     }
 
@@ -160,22 +160,23 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
 #elif __VCAN_TRANSMIT
 
     while(1){
-        vcan_receive_data(recv_buffer,4096,&recv_len);  
+        vcan_receive_package(recv_buffer,4096,&recv_len);  
         recv_buffer[recv_len] = '\0';
         if(recv_len!=0){
             if(recv_buffer[1]==0x0&&recv_buffer[2]==0xff){
                 memset(recv_buffer,0,4096);
-                UINT port_len=get_RT_sub_addr_array(port,(UINT *)(recv_buffer+8));
-                *(UINT *)(recv_buffer+4)=port_len;
-                *(UINT *)recv_buffer=(port_len+1)*sizeof(int);
-                if(vcan_send_data(recv_buffer,(port_len+2)*sizeof(int)) == -1)  
+                UINT port_len=get_RT_sub_addr_array(port,(UINT *)(recv_buffer+4));
+                *(UINT *)recv_buffer=port_len;
+                if(vcan_send_package(recv_buffer,(port_len+1)*sizeof(int)) == -1)  
                     printf("发送RT端口子地址列表给RT失败\n");
                 else{
                     printf("成功发送RT端口子地址列表给端口号为%d的RT\n",port);
                 }
         }
-        else
+        else{
+            memset(recv_buffer,0,recv_len);
             ctrl_unpack_package_to_1553(traffic_repos_id,port,recv_buffer,recv_len);
+            }
         }  
     }
 

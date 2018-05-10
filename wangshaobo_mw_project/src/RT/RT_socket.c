@@ -1,5 +1,5 @@
+#define __RT_INCLUDE
 #include "compile_type.h"
-#include "file.h"
 #include<stdio.h>
 #include<stdlib.h> 
 #include<pthread.h>
@@ -11,8 +11,6 @@
 #include<sys/types.h>  
 #include<sys/socket.h>  
 #include<netinet/in.h>
-#include "relevant_struct_def.h"
-#include "RT_socket.h"
 #ifdef __RT_GCC_C99
 #include<pthread.h>
 #elif __RT_SPARC_GCC_MMU  
@@ -24,6 +22,9 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #endif
+#include "file.h"
+#include "relevant_struct_def.h"
+#include "RT_socket.h"
 
 #ifdef __RT_VCAN_TRANSMIT
 
@@ -50,17 +51,45 @@ void init_vcan_handler(){
     
 }
 
+int RT_send_frame(struct can_frame frame){
+    int n;
+	n = write(s, &frame, sizeof(struct can_frame));
+    return n;
+}
+
+UINT RT_receive_package(unsigned char *buffer){   //返回接收到的全帧大小,buffer大小满足情况
+    int n;
+    UINT pack_size;
+    UINT size;
+    UINT recv_bytes=0;
+    struct can_frame frame;
+    n = read(s, &frame, sizeof(struct can_frame));
+    //第一次接应该为大小帧，否则直接丢弃
+    while(frame_type_detect(frame,NULL,&size)!=VCAN_SIZE_FRAME_FLAG){
+        n = read(s, &frame, sizeof(struct can_frame));
+    }
+    pack_size=size;
+    while(recv_bytes<pack_size){
+        n = read(s, &frame, sizeof(struct can_frame));
+        frame_type_detect(frame,buffer+recv_bytes,&size);
+        recv_bytes+=size;
+    }
+    if(recv_bytes>pack_size){
+        printf("我收到了过多的数据,实际收到数据:%d,应该收到数据%d\n",recv_bytes,pack_size);
+    }
+    return recv_bytes;
+}
+
 #endif
 
 
 void* create_RT_socket_server(void* RT_port){ 
     unsigned char    buffer[4096];  
-    unsigned char    ret_buff[4096];
+    UINT size;
 #ifdef __RT_TCPIP_TRANSMIT
     port_con* p_RT_port=(port_con*)RT_port;
     UINT port=p_RT_port->port;
     UINT child_port;
-    UINT ret_size;
     int     n; 
     int    socket_fd, connect_fd;  
     struct sockaddr_in     servaddr;  
@@ -91,45 +120,11 @@ void* create_RT_socket_server(void* RT_port){
     }  
     close(socket_fd);  
 #elif __RT_VCAN_TRANSMIT
-	int nbytes;
-	int n;
-	struct can_frame frame;
-    int recv_bytes=0;
-    int pack_size=-1;
-    int recv_bytes_sum=0;
-
+	UINT nbytes;
     while(true){
-        while(true){
-            n = read(s, &frame, sizeof(struct can_frame));
-            printf("n:%d %d %d %d\n",n,frame.data[0],frame.data[1],frame.data[2]);
-            /*if (n < 0) {
-                perror("can raw socket read");
-                return NULL;
-            }*/
-            /* paranoid check ... */
-            /*if (n < sizeof(struct can_frame)) {
-                fprintf(stderr, "read: incomplete CAN frame\n");
-                return 1;
-            }*/
-            recv_bytes=frame.can_dlc;
-            recv_bytes_sum+=recv_bytes;
-            int i=0;
-            for(i=0;i<recv_bytes;i++){
-                buffer[recv_bytes_sum+i]=frame.data[i];
-            }
-            if(pack_size==-1&&recv_bytes_sum>=4){
-                pack_size=*(UINT *)buffer;
-            }
-            if(pack_size==(recv_bytes_sum-4)){
-                break;
-            }
-            else if(pack_size<(recv_bytes_sum-4)){
-                printf("错误,接收到了%dB数据，数据总量应该为%dB\n",recv_bytes_sum-4,pack_size);
-                break;
-            }
-        }
-        buffer[recv_bytes_sum]='\0';
-        RT_handle_package(buffer,recv_bytes_sum);
+        //阻塞状态不需要sleep
+        nbytes=RT_receive_package(buffer);
+        RT_handle_package(buffer,nbytes);
     }
 #endif
 
@@ -235,10 +230,6 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
 	//const char *ifname = "vcan0";
 	struct can_frame frame;
 	int nbytes;
-    int n;
-    int recv_bytes;
-    int recv_bytes_sum;
-    int pack_size;
 
 	/*if((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
 		perror("Error while opening socket");
@@ -258,67 +249,27 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
 		return NULL;
 	}
     */
-
-	frame.can_id  = 0x1;
-	frame.can_dlc  = 0x3;
-    frame.data[0]=0x2;
-    frame.data[1]=0x0;
-    frame.data[2]=0xff;
-	nbytes = write(s, &frame, sizeof(struct can_frame));
-    int j=0;
-    for(j=0;j<8;j++){
-        frame.data[j]=0;
-    }
-    while(true){
-        n = read(s, &frame, sizeof(struct can_frame));
-        if (n < 0) {
-            perror("can raw socket read");
-            return NULL;
-        }
-        /* paranoid check ... */
-        if (n < sizeof(struct can_frame)) {
-            fprintf(stderr, "read: incomplete CAN frame\n");
-            return NULL;
-        }
-        recv_bytes=frame.can_dlc;
-        recv_bytes_sum+=recv_bytes;
-        int i=0;
-        for(i=0;i<recv_bytes;i++){
-            ret_buff[recv_bytes_sum+i]=frame.data[i];
-        }
-        if(pack_size==-1&&recv_bytes_sum>=4){
-            pack_size=*(UINT *)ret_buff;
-        }
-        if(pack_size==(recv_bytes_sum-4)){
-            break;
-        }
-        else if(pack_size<(recv_bytes_sum-4)){
-            printf("错误,接收到了%dB数据，数据总量应该为%dB\n",recv_bytes_sum-4,pack_size);
-            break;
-        }
-    }
-    init_port_array((UINT *)(ret_buff+2*RT_PACKAGE_HEADER_SIZE_LEN),\
-            *(UINT *)(ret_buff+RT_PACKAGE_HEADER_SIZE_LEN));
+    frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,0x2);
+	nbytes = RT_send_frame(frame);
+    frame=serial_frame(VCAN_INIT_PORT_FRAME_FLAG,NULL,0);
+	nbytes = RT_send_frame(frame);
+    RT_receive_package(ret_buff);
+    init_port_array((UINT *)(ret_buff+sizeof(UINT)),*(UINT *)ret_buff);
     //正式发送数据
-    while(1){
+    while(true){
         usleep(50000);
         memset(ret_buff,0,4096);
         pack_package(ret_buff,4096,&ret_size);
         if(ret_size==0)
             continue;
+        frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,ret_size);
+        RT_send_frame(frame);
         int i=0;
         for(i=0;i<ret_size;){
-	        frame.can_dlc = (ret_size-i)>8?8:(ret_size-i);
-            for(j=0;j<8;j++){
-                frame.data[j]=0;
-            }
-            int j=0;
-            for(j=0;j<frame.can_dlc;j++){
-                frame.data[j]=ret_buff[i+j];
-            }
-            i+=frame.can_dlc;
-	        nbytes = write(s, &frame, sizeof(struct can_frame));
-            frame.can_id=(frame.can_id+1)%1000;
+	        UINT frame_size_tmp = (ret_size-i)>8?8:(ret_size-i);
+            frame=serial_frame(VCAN_DATA_FRAME_FLAG,ret_buff+i,frame_size_tmp);
+            i+=frame_size_tmp;
+            RT_send_frame(frame);
         }
     }
 #endif

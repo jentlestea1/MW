@@ -133,6 +133,7 @@ int vcan_send_package(unsigned char *buf,unsigned int size){
 	frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,size);
     device_write(device_send,frame);
     //mdelay(500);
+
     int i=0;
     for(i=0;i<size;){
 	    UINT frame_size_tmp = (size-i)>8?8:(size-i);
@@ -144,6 +145,7 @@ int vcan_send_package(unsigned char *buf,unsigned int size){
             printf("发送丢失\n");
             return -1;
         }
+
 
         //mdelay(500);
     }

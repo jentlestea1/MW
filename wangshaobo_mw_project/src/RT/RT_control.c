@@ -102,7 +102,12 @@ void init_port_array(UINT *RT_sub_addr_array,UINT size){
 
 void pack_package(unsigned char* buffer,UINT buffer_len,UINT* buffer_size){
     //获取数据
-    unsigned char *p_buffer_data=buffer+RT_PACKAGE_HEADER_SIZE_LEN;
+    unsigned char*p_buffer_data;
+#ifdef __RT_TCPIP_TRANSMIT
+    p_buffer_data=buffer+RT_PACKAGE_HEADER_SIZE_LEN;
+#elif __RT_VCAN_TRANSMIT
+    p_buffer_data=buffer;
+#endif
     UINT read_size=READ_MAX_SIZE_RT;
     char read_buffer_tmp[CACHE_MAX_SIZE]={0};
     UINT size;
@@ -125,21 +130,30 @@ void pack_package(unsigned char* buffer,UINT buffer_len,UINT* buffer_size){
         memset(read_buffer_tmp,0,CACHE_MAX_SIZE);
     }
     if(is_send_valid==true){
+#ifdef __RT_TCPIP_TRANSMIT
         *(UINT *)buffer=buffer_pos;
         *buffer_size=buffer_pos+RT_PACKAGE_HEADER_SIZE_LEN;
+#elif __RT_VCAN_TRANSMIT
+        *buffer_size=buffer_pos;
+#endif
     }
     else{
         *buffer_size=0;
+#ifdef __RT_TCPIP_TRANSMIT
         memset(buffer,0,buffer_pos+RT_PACKAGE_HEADER_SIZE_LEN);
+#elif __RT_VCAN_TRANSMIT
+        memset(buffer,0,buffer_pos);
+#endif
     }
 }
 
 void RT_handle_package(UCHAR *buffer,UINT n){
     if(n==0)return;
+#ifdef __RT_TCPIP_TRANSMIT
     UINT size=*(UINT *)buffer;
-    //printf("RT接收到数据大小:%d n:%d\n",size,n);
     buffer+=RT_PACKAGE_HEADER_SIZE_LEN;
     n-=RT_PACKAGE_HEADER_SIZE_LEN;
+#endif
  	if(n!=0&&n!=-1){
             /*解包过程*/
             unsigned char send_buffer[4096]={0};

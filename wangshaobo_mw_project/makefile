@@ -12,6 +12,7 @@ vpath %.c ./src/vi_dev_visit_sys/
 vpath %.c ./src/xml_parser/
 vpath %.c ./src/BC/
 vpath %.c ./src/vcan_transmit/
+vpath %.c ./src/type/
 vpath %.c ./src/mxml/
 vpath %.h ./include/type/
 vpath %.h ./include/app/
@@ -40,11 +41,11 @@ BC_OBJ = main.o manage_transport_center.o app.o BC_socket.o BC_control.o package
 		 control_package.o control_data_stream.o control_traffic_light.o traffic_light.o \
 		 data_stream.o handle_data_package.o xml_parse.o relevant_struct_def.o \
 		 address_map.o route_map.o config_1553.o handle_event.o event.o handle_event_func.o \
-		 can_sys.o can_transmit.o mxml-attr.o mxml-entity.o mxml-file.o mxml-get.o mxml-index.o \
+		 can_sys.o can_transmit.o m_type.o mxml-attr.o mxml-entity.o mxml-file.o mxml-get.o mxml-index.o \
 		 mxml-node.o mxml-private.o mxml-search.o mxml-set.o mxml-string.o
 		 
 
-RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def_rt.o file.o
+RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def_rt.o m_type_rt.o file.o
 
 all : BC RT
 	

@@ -1,3 +1,4 @@
+#include "compile_type.h"
 #include "package.h"
 #include "handle_data_package.h"
 #include "control_data_stream.h"
@@ -13,7 +14,9 @@
  */
 void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf_size,char* bus_type,char* bus_lid,char* RT_lid){
     //前4个字节为帧的大小
+#ifdef __TCP_IP_TRANSMIT
     buffer+=PACKAGE_HEADER_SIZE_LEN;
+#endif
     UINT cur_prio=0;
     UINT buffer_pos=0;
     UINT block_size=0;
@@ -98,11 +101,17 @@ void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,ch
         free_time_node(&p_time_node);
     }
     if(is_send_valid==true){
+#ifdef __TCP_IP_TRANSMIT
         *(UINT *)buffer_1553=buffer_pos;
         buffer_pos+=PACKAGE_HEADER_SIZE_LEN;
         *buffer_size=buffer_pos;
         buffer_tmp[buffer_pos]='\0';
         strcpy(buffer_1553+PACKAGE_HEADER_SIZE_LEN,buffer_tmp);
+#elif __VCAN_TRANSMIT
+        *buffer_size=buffer_pos;
+        buffer_tmp[buffer_pos]='\0';
+        strcpy(buffer_1553,buffer_tmp);
+#endif
         /*int i=0;
         for(i=0;i<buffer_pos;i++){
             printf("%d ",buffer_1553[i]);
