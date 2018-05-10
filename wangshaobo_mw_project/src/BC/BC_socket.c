@@ -357,6 +357,7 @@ void initialize_BC(){
 #ifdef __TCPIP_TRANSMIT
     initialize_communicate();
 #elif __VCAN_TRANSMIT
+
 #endif
 }
 

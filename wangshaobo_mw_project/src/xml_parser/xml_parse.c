@@ -1,10 +1,14 @@
 /*
  * xml_parse.c,定义各种对配置文件解析存储的操作函数,只需要使用parseXml()就可以完成配置该存储结构。
  */
+#include "compile_type.h"
 #include "xml_parse.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include "relevant_struct_def.h"
+#ifdef __SPARC_GCC_MMU
+#include "dev_string_xml.h"
+#endif
 #define ROUTE_MAX_LEN 5
 #define ROUTE_VALUE_MAX_LEN 10
 #define CONTENT_MAX_LEN 30
@@ -32,8 +36,15 @@ static char interface[INTERFACE_MAX_LEN];
 
 void parseXml(){
     printf("正在生成配置文件存储结构...\n");
+    mxml_node_t* root;
+
+#ifdef __GCC_C99
     FILE* fp=fopen("dev_new.xml","r");
-    mxml_node_t* root=mxmlLoadFile(NULL,fp,MXML_NO_CALLBACK);
+    root=mxmlLoadFile(NULL,fp,MXML_NO_CALLBACK);
+#elif __SPARC_GCC_MMU
+    root=mxmlLoadString(NULL,xml_string,MXML_NO_CALLBACK);
+#endif
+
     char* device_tag="device_entity";
     mxml_node_t* dev_node_p=NULL;
     mxml_node_t* dev_attr_node_p=NULL;

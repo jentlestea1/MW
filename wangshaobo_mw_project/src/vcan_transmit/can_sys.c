@@ -74,9 +74,6 @@ int receive_message(addrptr base, can_frame *can){
 int device_open(can_dev *device){
 	
 	uint8_t			temp, count;
-
-	printf("device open.\n");
-
 	// Try to go to reset mode.
 	temp = can_read8(device->mem_base + SJA_MODE_REG); //
 	//printf("count:0,  SJA_MODE_REG temp:0x%x\n",temp);
@@ -132,7 +129,7 @@ int device_open(can_dev *device){
 	device->rx_count = 0;
 	device->rx_in = 0;
 	device->rx_out = 0;
-
+	printf("vcan设备已连接\n");
 	return 0;
 }
 
