@@ -3,9 +3,13 @@
 #define bool int
 #define true 1
 #define false 0
+#ifndef NULL
+#define NULL 0
+#endif
 #define USHORT unsigned short
 #define UINT unsigned int
 #define ULONG unsigned long
+#define UCHAR unsigned char
 #define ATTR_MAX_LEN 20
 #define ATTR_VALUE_MAX_LEN 15
 #define ATTR_LID_VALUE_MAX_LEN 15

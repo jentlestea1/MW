@@ -5,6 +5,8 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
+#include "math.h"
+#include "file.h"
 
 static UINT s_pos[MOUNT_DEV_MAX_NUM]={0};
 static UINT e_pos[MOUNT_DEV_MAX_NUM]={0};
@@ -100,6 +102,7 @@ void init_port_array(UINT *RT_sub_addr_array,UINT size){
 
 void pack_package(unsigned char* buffer,UINT buffer_len,UINT* buffer_size){
     //获取数据
+    unsigned char *p_buffer_data=buffer+RT_PACKAGE_HEADER_SIZE_LEN;
     UINT read_size=READ_MAX_SIZE_RT;
     char read_buffer_tmp[CACHE_MAX_SIZE]={0};
     UINT size;
@@ -109,23 +112,91 @@ void pack_package(unsigned char* buffer,UINT buffer_len,UINT* buffer_size){
     for(;pos<len;pos++){
         read_write_buffer(pos,read_buffer_tmp,read_size,&size);
         if(size!=0)is_send_valid=true;
-        *(buffer+buffer_pos)=size;
-        *(buffer+buffer_pos)|=RT_DATA_BLOCK_VALID_PREFIX;
+        *(p_buffer_data+buffer_pos)=size;
+        *(p_buffer_data+buffer_pos)|=RT_DATA_BLOCK_VALID_PREFIX;
         buffer_pos++;
-        if(buffer_pos>=buffer_len){
+        if(buffer_pos>=buffer_len){   //如果这里出错，可以适当增大发送频率或者缓冲区大小
             is_send_valid=false;
             break;
         }
-        memcpy(buffer+buffer_pos,read_buffer_tmp,size);
+        memcpy(p_buffer_data+buffer_pos,read_buffer_tmp,size);
         buffer_pos+=size;
-        buffer[buffer_pos]='\0';
+        *(p_buffer_data+buffer_pos)='\0';
         memset(read_buffer_tmp,0,CACHE_MAX_SIZE);
     }
-    if(is_send_valid==true)*buffer_size=buffer_pos;
+    if(is_send_valid==true){
+        *(UINT *)buffer=buffer_pos;
+        *buffer_size=buffer_pos+RT_PACKAGE_HEADER_SIZE_LEN;
+    }
     else{
         *buffer_size=0;
-        memset(buffer,0,buffer_pos);
+        memset(buffer,0,buffer_pos+RT_PACKAGE_HEADER_SIZE_LEN);
     }
+}
+
+void RT_handle_package(UCHAR *buffer,UINT n){
+    if(n==0)return;
+    UINT size=*(UINT *)buffer;
+    //printf("RT接收到数据大小:%d n:%d\n",size,n);
+    buffer+=RT_PACKAGE_HEADER_SIZE_LEN;
+    n-=RT_PACKAGE_HEADER_SIZE_LEN;
+ 	if(n!=0&&n!=-1){
+            /*解包过程*/
+            unsigned char send_buffer[4096]={0};
+            UINT size;
+            UINT is_valid;
+            UINT pos=0;
+            UINT port_pos=0;
+	        UINT child_port;
+            while(pos<n){
+                size=buffer[pos]%0x80;
+                is_valid=buffer[pos]/0x80;
+                if(is_valid==0){
+                    if(size==0)pos++;
+                    else pos+=size;
+                    port_pos++;
+                    continue;
+                }
+                if(size==0){
+                    pos++;
+                    port_pos++;
+                    continue;
+                }
+                pos++;
+                memcpy(send_buffer,buffer+pos,size);
+                pos+=size;
+                send_buffer[size]='\0';
+                if(port_pos<get_child_port_array_len()){
+                    child_port=get_child_port(port_pos);
+                    port_pos++;
+                }
+                else{
+                    printf("port_pos大小出错\n");
+                }
+                //printf("\n----------port为%d的RT捕获到数据：%s发送给child_port:%d端口------------\n",port,send_buffer,child_port);
+                double d;
+                /*测试用*/
+                if(child_port==8003){
+                    double d1=send_buffer[0];
+                    double d2=send_buffer[1];
+                    double d3=send_buffer[2];
+                    d=d1+pow(0.1,d3)*d2;
+                }
+                else {
+                    d=send_buffer[0];
+                }
+                printf("位置：RT；类型：->接收；数据：%lf；大小：%d；端口：%d    ",d,size,child_port);
+                add_string(RECEIVE,d,child_port);
+                void* p_time=get_time_node();
+                get_current_time(p_time);
+                print_time(p_time);
+                free_time_node(&p_time);
+                memset(send_buffer,0,4096);
+            }
+            if(pos!=n){
+                printf("ERR:传输内容有误\n");
+            }
+	}
 }
 
 int get_child_port_pos(UINT child_port){

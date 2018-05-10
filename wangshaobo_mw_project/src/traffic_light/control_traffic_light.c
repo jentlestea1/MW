@@ -48,7 +48,11 @@ void* traffic_repos_scan_pthread_func(void* argc){
         if(p_traffic_light_repos_array[i]!=NULL){
             while(true){
                 traffic_repos_scan_func(i);
-                usleep(10000);//这里设置每循环10ms扫描所有交通灯库
+#ifdef __GCC_C99
+        usleep(10000);
+#elif __SPARC_GCC_MMU
+        sleep(1);
+#endif
             }
         }
     }

@@ -183,7 +183,8 @@ void parseXml(){
 /*改为从interface标签中获取interface*/
 char* getInterface(const char* dev_content,UINT dev_content_len){
     char* t=interface;
-    for(int i=0;i<dev_content_len;i++){
+    int i=0;
+    for(i=0;i<dev_content_len;i++){
         interface[i]=dev_content[i];
         if(dev_content[i]==':'){
             interface[i]='\0';
@@ -216,7 +217,8 @@ mxml_node_t* findDependedNode(const char* content,UINT content_len,mxml_node_t* 
     char channel_lid[TAG_NAME_MAX_LEN];
 
     /*删掉content的前后空字符*/
-    for(int i=0;i<content_len;i++){
+    int i=0;
+    for(i=0;i<content_len;i++){
         if(j==0){
             if(content[i]==' '){
                 continue;
@@ -230,7 +232,8 @@ mxml_node_t* findDependedNode(const char* content,UINT content_len,mxml_node_t* 
         else{
                 k=i;
                 bool isLastWordsEmpty=true;
-                for(int l=k;l<content_len;l++){
+                int l;
+                for(l=k;l<content_len;l++){
                     if(content[l]!=' '){
                         isLastWordsEmpty=false;
                     }
@@ -252,11 +255,12 @@ mxml_node_t* findDependedNode(const char* content,UINT content_len,mxml_node_t* 
     /*放入ROUTE*/
     j=0;
     k=0;
-    for(int i=0;i<content_tmp_len;i++){
+    for(i=0;i<content_tmp_len;i++){
         k=i;
         if(content_tmp[i]==':'||content_tmp[i]==';'||i==content_tmp_len-1){
             if(i==content_tmp_len-1)k++;
-            for(int l=j;l<k;l++){
+            int l;
+            for(l=j;l<k;l++){
                 *(ROUTE[ROUTE_pos]+ROUTE_VALUE_pos++)=*(content_tmp+l);
             }
             *(ROUTE[ROUTE_pos]+ROUTE_VALUE_pos)='\0';
@@ -302,9 +306,9 @@ mxml_node_t* findDependedNode(const char* content,UINT content_len,mxml_node_t* 
  *打印配置文件解析存储结构 
  */
 void printList(){
-printf("enter print...\n");
-printf("list len:%d\n",get_devices_descrip_item_num());
-int i=0;
+    printf("enter print...\n");
+    printf("list len:%d\n",get_devices_descrip_item_num());
+    int i=0;
     for(i=0;i<get_devices_descrip_item_num();i++){
     printf("____________________________\n");
     printf("enterpos: %d\n",i);
@@ -312,7 +316,8 @@ int i=0;
         printf("device lid:%s\n",get_device_lid(dev_p));
         printf("device type:%s\n",get_device_type(dev_p));
         printf("device interface:%s\n",get_device_interface(dev_p));
-        for(int j=0;j<DeviceList[i]->descrip.attr_len;j++){
+        int j=0;
+        for(j=0;j<DeviceList[i]->descrip.attr_len;j++){
             printf("%s: ",DeviceList[i]->descrip.attrs.attr_name[j]);
             printf("%s\n",DeviceList[i]->descrip.attrs.attr_value[j]);
         }
@@ -324,27 +329,28 @@ int i=0;
             if(strcmp(io_tmp->descrip.type,"RT")==0){
                 //RT_trans
                 //printf("_____tran data_____\n");
-                for(int k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
+                int k=0;
+                for(k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
                     printf("_____addr_map_____\n");
                     printf("device lid:%s->",io_tmp->descrip.io_attrs.RTTrans.dev_lid[k]);
                     printf("addr:%s\n",io_tmp->descrip.io_attrs.RTTrans.dev_map_subAddr[k]);
                 }
-                for(int k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
+                for(k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
                     printf("_____send_prio_____\n");
                     printf("device lid:%s",io_tmp->descrip.io_attrs.RTTrans.dev_lid[k]);
                     printf("weight:%s\n",io_tmp->descrip.io_attrs.RTTrans.info[SEND_PRIORITY_POS].send_priority[k]);
                 }
-                for(int k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
+                for(k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
                     printf("_____send_block_____\n");
                     printf("device lid:%s",io_tmp->descrip.io_attrs.RTTrans.dev_lid[k]);
                     printf("weight:%s\n",io_tmp->descrip.io_attrs.RTTrans.info[SEND_BLOCK_POS].send_priority[k]);
                 }
-                for(int k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
+                for(k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
                     printf("_____receive_prio_____\n");
                     printf("device lid:%s",io_tmp->descrip.io_attrs.RTTrans.dev_lid[k]);
                     printf("weight:%s\n",io_tmp->descrip.io_attrs.RTTrans.info[RECEIVE_PRIORITY_POS].send_priority[k]);
                 }
-                for(int k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
+                for(k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
                     printf("_____receive_block_____\n");
                     printf("device lid:%s",io_tmp->descrip.io_attrs.RTTrans.dev_lid[k]);
                     printf("weight:%s\n",io_tmp->descrip.io_attrs.RTTrans.info[RECEIVE_BLOCK_POS].send_priority[k]);
@@ -354,7 +360,8 @@ int i=0;
             else if(io_tmp->descrip.io_attr_len!=0){
                 //io_attr
                 printf("___io_attr______\n");
-                for(int k=0;k<io_tmp->descrip.io_attr_len;k++){
+                int k=0;
+                for(k=0;k<io_tmp->descrip.io_attr_len;k++){
                     printf("%s:",io_tmp->descrip.io_attrs.attrs.attr_name[k]);
                     printf("%s\n",io_tmp->descrip.io_attrs.attrs.attr_value[k]);
                 }
@@ -543,7 +550,8 @@ void* get_io_next_item(void* io_item){
 char* get_device_data_size(void* dev_item){
     char* attr_name="";
     char* attr_value="";
-    for(int i=0;i<get_device_attr_len(dev_item);i++){
+    int i=0;
+    for(i=0;i<get_device_attr_len(dev_item);i++){
         attr_name=get_device_attrs_name(dev_item);
         attr_value=get_device_attrs_value(dev_item);
         if(strcmp(attr_name,"dataSize")==0){

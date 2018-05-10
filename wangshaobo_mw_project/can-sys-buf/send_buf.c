@@ -59,9 +59,9 @@ int main(){
     can_frame cansnd;
 	cansnd.can_id = 0x111;
 	cansnd.can_dlc = 3;
-	cansnd.data[0] = 0x12;
-	cansnd.data[1] = 0x34;
-	cansnd.data[2] = 0x56;
+	cansnd.data[0] = 'd';
+	cansnd.data[1] = 'o';
+	cansnd.data[2] = 't';
 
     int i;
     for(i = 0;i < 6;i++){

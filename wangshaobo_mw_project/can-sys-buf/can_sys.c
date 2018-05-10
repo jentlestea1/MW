@@ -141,7 +141,8 @@ int device_write(can_dev *device, can_frame frame){
 	
 	unsigned char temp;
 	
-	if (device->tx_count == BUFFERSIZE)
+	//if (device->tx_count == BUFFERSIZE)
+	if ((device->tx_in+1)%BUFFERSIZE ==device->tx_out)
 		return -1;  // There is no tx buffer to store current message.
 
 	device->tx_buf[device->tx_in] = frame;
@@ -149,21 +150,23 @@ int device_write(can_dev *device, can_frame frame){
 	temp = can_read8(device->mem_base + SJA_STATUS_REG); //
 	//printf("status register...... 0x%x\n", temp);
 	if ((temp & TBS) != TBS) {  // Put the message to buffer.
-		device->tx_count++;
+		//device->tx_count++;
 		device->tx_in++;
 		if (device->tx_in == BUFFERSIZE)
 			device->tx_in = 0;
-		return BUFFERSIZE - device->tx_count;
+		//return BUFFERSIZE - device->tx_count;
+		return BUFFERSIZE - ((device->tx_in-device->tx_out+BUFFERSIZE)%BUFFERSIZE);
 	}
-
 	send_message(device->mem_base, &(device->tx_buf[device->tx_in]));
 
-	return BUFFERSIZE - device->tx_count;
+	return BUFFERSIZE - ((device->tx_in-device->tx_out+BUFFERSIZE)%BUFFERSIZE);
+	//return BUFFERSIZE - device->tx_count;
 }
 
 can_frame* device_read(can_dev *device){
 	
-	if (device->rx_count == 0)
+	//if (device->rx_count == 0)
+	if (device->rx_in == device->rx_out )
 		return NULL;	  // There is no CAN message now.
 
 	can_frame* frame = &(device->rx_buf[device->rx_out]);
@@ -171,7 +174,9 @@ can_frame* device_read(can_dev *device){
 	device->rx_out++;
 	if (device->rx_out == BUFFERSIZE)
 		device->rx_out = 0;
-	device->rx_count--;
+    
+    //这里的rx_count可能被同时访问
+	//device->rx_count--;
 		
 	return frame;
 }

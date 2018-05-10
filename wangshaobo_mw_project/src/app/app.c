@@ -34,7 +34,11 @@ void* app_write_pthread_func(void* argc){
         if(write_size==strlen(write_buf_s))printf("write success!\ndev_lid:%s   data:%s\n","003",write_buf_s);
         else printf("write error!\n");
         printf("----------------------\n");
+#ifdef __GCC_C99
         usleep(1000000);
+#elif __SPARC_GCC_MMU
+        sleep(1);
+#endif
         
     }
 }
@@ -59,14 +63,22 @@ void* app_read_pthread_func_f(void* argc){
         void* p_time_r=get_time_node();
         while(true){
             vi_app_read_data("001",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            usleep(10000);
+#ifdef __GCC_C99
+        usleep(10000);
+#elif __SPARC_GCC_MMU
+        sleep(1);
+#endif
             if(read_size!=0)break;
         }
         str_to_double(&d1,read_buf);
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("002",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            usleep(10000);
+#ifdef __GCC_C99
+        usleep(10000);
+#elif __SPARC_GCC_MMU
+        sleep(1);
+#endif
             if(read_size!=0)break;
         }
         str_to_double(&d2,read_buf);
@@ -84,8 +96,8 @@ void* app_read_pthread_func_f(void* argc){
         //printf("1-%d-\n",t++);
         free_time_node(&p_time_r);
     }
-    
 }
+
 void* app_read_pthread_func_s(void* argc){
     unsigned char read_buf[200];
     unsigned char write_buf[200];
@@ -98,7 +110,11 @@ void* app_read_pthread_func_s(void* argc){
         void* p_time_r=get_time_node();
         while(true){
             vi_app_read_data("004",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            usleep(10000);
+#ifdef __GCC_C99
+        usleep(10000);
+#elif __SPARC_GCC_MMU
+        sleep(1);
+#endif
             if(read_size!=0)break;
         }
         sum=read_buf[0]+1;
@@ -110,8 +126,8 @@ void* app_read_pthread_func_s(void* argc){
         //printf("2-%d-\n",t++);
         free_time_node(&p_time_r);
     }
-    
 }
+
 void* app_read_pthread_func_t(void* argc){
     unsigned char read_buf[200];
     unsigned char write_buf[200];
@@ -124,21 +140,33 @@ void* app_read_pthread_func_t(void* argc){
         void* p_time_r=get_time_node();
         while(true){
             vi_app_read_data("005",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            usleep(10000);
+#ifdef __GCC_C99
+        usleep(10000);
+#elif __SPARC_GCC_MMU
+        sleep(1);
+#endif
             if(read_size!=0)break;
         }
         sum=read_buf[0];
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("006",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            usleep(10000);
+#ifdef __GCC_C99
+        usleep(10000);
+#elif __SPARC_GCC_MMU
+        sleep(1);
+#endif
             if(read_size!=0)break;
         }
         sum+=read_buf[0];
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("007",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            usleep(10000);
+#ifdef __GCC_C99
+        usleep(10000);
+#elif __SPARC_GCC_MMU
+        sleep(1);
+#endif
             if(read_size!=0)break;
         }
         sum+=read_buf[0];
@@ -159,17 +187,15 @@ void app_read(void){
     vi_set_RT_disable("001","02");
     vi_set_RT_enable("001","02");
     pthread_t tid1;
+    pthread_t tid2;
+    pthread_t tid3;
 #ifdef __GCC_C99
     pthread_create(&tid1,NULL,app_read_pthread_func_f,NULL);
-    pthread_t tid2;
     pthread_create(&tid2,NULL,app_read_pthread_func_s,NULL);
-    pthread_t tid3;
     pthread_create(&tid3,NULL,app_read_pthread_func_t,NULL);
-#elif __SPARC__GCC_MMU
+#elif __SPARC_GCC_MMU
     pthread_create(&tid1,NULL,(pthread_func_t)app_read_pthread_func_f,NULL);
-    pthread_t tid2;
     pthread_create(&tid2,NULL,(pthread_func_t)app_read_pthread_func_s,NULL);
-    pthread_t tid3;
     pthread_create(&tid3,NULL,(pthread_func_t)app_read_pthread_func_t,NULL);
 #endif
 }

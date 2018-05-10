@@ -12,6 +12,8 @@
  * 将数据写到对应转存区域 
  */
 void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf_size,char* bus_type,char* bus_lid,char* RT_lid){
+    //前4个字节为帧的大小
+    buffer+=PACKAGE_HEADER_SIZE_LEN;
     UINT cur_prio=0;
     UINT buffer_pos=0;
     UINT block_size=0;
@@ -44,7 +46,7 @@ void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf
         dev_lid=get_priority_deterio_dev_lid(bus_type,bus_lid,RT_lid,SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
         prev_priority=cur_prio;
     }
-    if(buf_size!=buffer_pos)printf("unpack to 1553有数据丢失\n");
+    if(buf_size!=buffer_pos+PACKAGE_HEADER_SIZE_LEN)printf("unpack to 1553有数据丢失\n");
 }
 
 /*
@@ -96,9 +98,17 @@ void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,ch
         free_time_node(&p_time_node);
     }
     if(is_send_valid==true){
+        *(UINT *)buffer_1553=buffer_pos;
+        buffer_pos+=PACKAGE_HEADER_SIZE_LEN;
         *buffer_size=buffer_pos;
         buffer_tmp[buffer_pos]='\0';
-        strcpy(buffer_1553,buffer_tmp);
+        strcpy(buffer_1553+PACKAGE_HEADER_SIZE_LEN,buffer_tmp);
+        /*int i=0;
+        for(i=0;i<buffer_pos;i++){
+            printf("%d ",buffer_1553[i]);
+        }
+        printf("\n");
+        */
     }
     else{
         *buffer_size=0;

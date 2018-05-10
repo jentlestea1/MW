@@ -2,8 +2,8 @@
 #define MY_RT_SOCKET_H_
 #include "m_type.h"
 #include "RT_control.h"
-#define m_random() rand()%100
-#define TIMES 100
+#define m_random() rand()%5
+#define TIMES 10
 typedef struct port_con{
     UINT port;
 }port_con;

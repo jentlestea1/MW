@@ -21,5 +21,6 @@ int main(){
     init_vi_dev_visit_sys();
     app_read();
     while(1)
-        sleep(100000);
+        sleep(30);
+    return 0;
 }

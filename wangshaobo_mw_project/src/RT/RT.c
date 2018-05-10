@@ -1,3 +1,4 @@
+#include "compile_type.h"
 #include "RT_socket.h"
 #include<time.h>
 #include<stdio.h>
@@ -11,11 +12,11 @@ int main(){
     srand((unsigned)time(&t));
     generate_data();
     while(1){
-        usleep(1000000);
+        sleep(1);
         if(is_end_t()==6){
-            usleep(2000000);
+            sleep(2);
             printf("\n数据传输结束，准备分析测试结果...\n\n");
-            usleep(1000000);
+            sleep(1);
             out_put();
             out_put();
             judge_result();
