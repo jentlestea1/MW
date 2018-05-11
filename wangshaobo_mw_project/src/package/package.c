@@ -29,12 +29,17 @@ void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf
         throw_event(0,RT_lid,EVT_1553_RETURN_DATA_ERR);
         return;//抛出异常
     }
+    int cnt=0;
     char* dev_lid=get_priority_deterio_dev_lid(bus_type,bus_lid,RT_lid,SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
     prev_priority=cur_prio;
     while(strcmp(dev_lid,"")!=0){
-        UINT is_valid=*(buffer+buffer_pos)/DATA_BLOCK_VALID_PREFIX;
-        if(is_valid==1){
+        //UINT is_valid=*(buffer+buffer_pos)/DATA_BLOCK_VALID_PREFIX;
+        //unsigned char is_valid=*(buffer+buffer_pos)&DATA_BLOCK_ISVALID_MASK;
+        //printf("0x%x\n",*(buffer+buffer_pos));
+        //printf("--0x%x\n",*(buffer+buffer_pos)&DATA_BLOCK_ISVALID_MASK);
+        if((*(buffer+buffer_pos)&DATA_BLOCK_ISVALID_MASK)==DATA_BLOCK_VALID_PREFIX){
             block_size=*(buffer+buffer_pos)%DATA_BLOCK_VALID_PREFIX;
+            //printf("-%d- block_size:%d\n",++cnt,block_size);
             buffer_pos++;
             ctrl_dev_write_data(traffic_repos_id,dev_lid,buffer+buffer_pos,block_size,&size);
             if(size!=block_size){
@@ -49,7 +54,13 @@ void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf
         dev_lid=get_priority_deterio_dev_lid(bus_type,bus_lid,RT_lid,SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
         prev_priority=cur_prio;
     }
-    if(buf_size!=buffer_pos+PACKAGE_HEADER_SIZE_LEN)printf("unpack to 1553有数据丢失\n");
+#ifdef __TCP_IP_TRANSMIT
+    if(buf_size!=buffer_pos+PACKAGE_HEADER_SIZE_LEN)
+        printf("unpack to 1553有数据丢失\n");
+#elif __VCAN_TRANSMIT
+    if(buf_size!=buffer_pos)
+        printf("unpack to 1553有数据丢失\n");
+#endif
 }
 
 /*

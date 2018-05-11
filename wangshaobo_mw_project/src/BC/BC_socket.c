@@ -163,19 +163,20 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
         vcan_receive_package(recv_buffer,4096,&recv_len);  
         recv_buffer[recv_len] = '\0';
         if(recv_len!=0){
-            if(recv_buffer[1]==0x0&&recv_buffer[2]==0xff){
+           //printf("len:%d %x %x %x\n",recv_len,recv_buffer[0],recv_buffer[1],recv_buffer[2]);
+            if(recv_buffer[0]==0x0&&recv_buffer[1]==0xff){
                 memset(recv_buffer,0,4096);
                 UINT port_len=get_RT_sub_addr_array(port,(UINT *)(recv_buffer+4));
                 *(UINT *)recv_buffer=port_len;
-                if(vcan_send_package(recv_buffer,(port_len+1)*sizeof(int)) == -1)  
+                if(vcan_send_package(recv_buffer,(port_len+1)*sizeof(int)) == -1)    
                     printf("发送RT端口子地址列表给RT失败\n");
                 else{
                     printf("成功发送RT端口子地址列表给端口号为%d的RT\n",port);
                 }
         }
         else{
-            memset(recv_buffer,0,recv_len);
             ctrl_unpack_package_to_1553(traffic_repos_id,port,recv_buffer,recv_len);
+            memset(recv_buffer,0,recv_len);
             }
         }  
     }

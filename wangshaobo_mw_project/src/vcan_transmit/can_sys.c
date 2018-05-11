@@ -174,7 +174,6 @@ can_frame* device_read(can_dev *device){
     
     //这里的rx_count可能被同时访问
 	//device->rx_count--;
-		
 	return frame;
 }
 

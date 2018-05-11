@@ -23,7 +23,6 @@ void canIrq_handler(){
 	uint8_t temp;
     //发中断不做操作
 	temp = can_read8(device_recv->mem_base + SJA_INT_REG); 
-	
     //发送完触发一个中断
     
     /*
@@ -54,6 +53,7 @@ void canIrq_handler(){
 	if (temp & DOI) {
 		printf("IRQ Overrun int\n");
 		can_write8(CDO, device_recv->mem_base + SJA_COMMAND_REG); // Clear data overrun.
+		
 	}
 
 }

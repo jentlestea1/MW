@@ -92,10 +92,15 @@ void init_port_array(UINT *RT_sub_addr_array,UINT size){
     int i=0;
     if(size>=MOUNT_DEV_MAX_NUM){
         printf("初始化RT端口不合法\n");
+        return;
     }
     len=size;
     for(i=0;i<size;i++){
-        child_port_array[i]=*(RT_sub_addr_array+i);
+        UINT sub_addr_value=*(RT_sub_addr_array+i);
+#ifdef __RT_VCAN_TRANSMIT
+        sub_addr_value=htonl(sub_addr_value);
+#endif
+        child_port_array[i]=sub_addr_value;
         printf("child_port[%d]:%d\n",i,child_port_array[i]);
     }
 }
@@ -114,11 +119,14 @@ void pack_package(unsigned char* buffer,UINT buffer_len,UINT* buffer_size){
     UINT buffer_pos=0;
     UINT pos=0;
     bool is_send_valid=false;
+    UINT tmp;
     for(;pos<len;pos++){
         read_write_buffer(pos,read_buffer_tmp,read_size,&size);
         if(size!=0)is_send_valid=true;
-        *(p_buffer_data+buffer_pos)=size;
-        *(p_buffer_data+buffer_pos)|=RT_DATA_BLOCK_VALID_PREFIX;
+        tmp=size;
+        tmp|=RT_DATA_BLOCK_VALID_PREFIX;
+        *(p_buffer_data+buffer_pos)=tmp;
+        //*(p_buffer_data+buffer_pos)|=RT_DATA_BLOCK_VALID_PREFIX;
         buffer_pos++;
         if(buffer_pos>=buffer_len){   //如果这里出错，可以适当增大发送频率或者缓冲区大小
             is_send_valid=false;

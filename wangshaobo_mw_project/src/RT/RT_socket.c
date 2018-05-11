@@ -27,6 +27,9 @@
 #include "RT_socket.h"
 
 #ifdef __RT_VCAN_TRANSMIT
+/*同步锁用来在初始化好了端口后启动接收数据*/
+pthread_mutex_t RT_recv_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  RT_recv_cond  = PTHREAD_COND_INITIALIZER;
 
 static int s;
 void init_vcan_handler(){
@@ -65,18 +68,20 @@ UINT RT_receive_package(unsigned char *buffer){   //返回接收到的全帧大�
     struct can_frame frame;
     n = read(s, &frame, sizeof(struct can_frame));
     //第一次接应该为大小帧，否则直接丢弃
-    while(frame_type_detect(frame,NULL,&size)!=VCAN_SIZE_FRAME_FLAG){
+    while(frame_type_detect(frame,NULL,&size,false)!=VCAN_SIZE_FRAME_FLAG){
         n = read(s, &frame, sizeof(struct can_frame));
     }
     pack_size=size;
+    printf("RT接收到大小帧size:%d\n",size);
     while(recv_bytes<pack_size){
         n = read(s, &frame, sizeof(struct can_frame));
-        frame_type_detect(frame,buffer+recv_bytes,&size);
+        frame_type_detect(frame,buffer+recv_bytes,&size,true);
         recv_bytes+=size;
     }
-    if(recv_bytes>pack_size){
+    if(recv_bytes>pack_size)
         printf("我收到了过多的数据,实际收到数据:%d,应该收到数据%d\n",recv_bytes,pack_size);
-    }
+    else if(recv_bytes==pack_size)
+        printf("RT收到正确的数据帧\n");
     return recv_bytes;
 }
 
@@ -121,6 +126,9 @@ void* create_RT_socket_server(void* RT_port){
     close(socket_fd);  
 #elif __RT_VCAN_TRANSMIT
 	UINT nbytes;
+    pthread_mutex_lock(&RT_recv_mutex);
+    pthread_cond_wait(&RT_recv_cond,&RT_recv_mutex);
+    pthread_mutex_unlock(&RT_recv_mutex);
     while(true){
         //阻塞状态不需要sleep
         nbytes=RT_receive_package(buffer);
@@ -251,25 +259,35 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
     */
     frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,0x2);
 	nbytes = RT_send_frame(frame);
+    usleep(10000);
     frame=serial_frame(VCAN_INIT_PORT_FRAME_FLAG,NULL,0);
+    //printf("%x %x %d\n",frame.data[0],frame.data[1],frame.can_dlc);
 	nbytes = RT_send_frame(frame);
     RT_receive_package(ret_buff);
-    init_port_array((UINT *)(ret_buff+sizeof(UINT)),*(UINT *)ret_buff);
+    UINT port_len=*(UINT *)ret_buff;
+    port_len=htonl(port_len);
+    init_port_array((UINT *)(ret_buff+sizeof(UINT)),port_len);
+    //初始化完成之后再创建RT_server
+    pthread_mutex_lock(&RT_recv_mutex);
+    pthread_cond_signal(&RT_recv_cond);
+    pthread_mutex_unlock(&RT_recv_mutex);
     //正式发送数据
     while(true){
-        usleep(50000);
+        usleep(500000);
         memset(ret_buff,0,4096);
         pack_package(ret_buff,4096,&ret_size);
         if(ret_size==0)
             continue;
         frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,ret_size);
         RT_send_frame(frame);
+        usleep(10000);
         int i=0;
         for(i=0;i<ret_size;){
 	        UINT frame_size_tmp = (ret_size-i)>8?8:(ret_size-i);
             frame=serial_frame(VCAN_DATA_FRAME_FLAG,ret_buff+i,frame_size_tmp);
             i+=frame_size_tmp;
             RT_send_frame(frame);
+            usleep(10000);
         }
     }
 #endif
