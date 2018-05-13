@@ -13,8 +13,9 @@
  * 将数据写到对应转存区域 
  */
 void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf_size,char* bus_type,char* bus_lid,char* RT_lid){
+    //printf("准备解包数据，数据大小:%d\n",strlen(buffer));
     //前4个字节为帧的大小
-#ifdef __TCP_IP_TRANSMIT
+#ifdef __TCPIP_TRANSMIT
     buffer+=PACKAGE_HEADER_SIZE_LEN;
 #endif
     UINT cur_prio=0;
@@ -54,12 +55,9 @@ void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf
         dev_lid=get_priority_deterio_dev_lid(bus_type,bus_lid,RT_lid,SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
         prev_priority=cur_prio;
     }
-#ifdef __TCP_IP_TRANSMIT
+#ifdef __TCPIP_TRANSMIT
     if(buf_size!=buffer_pos+PACKAGE_HEADER_SIZE_LEN)
         printf("unpack to 1553有数据丢失\n");
-    else {
-        printf("unpack sucess\n");
-    }
 #elif __VCAN_TRANSMIT
     if(buf_size!=buffer_pos)
         printf("unpack to 1553有数据丢失\n");
@@ -115,7 +113,7 @@ void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,ch
         free_time_node(&p_time_node);
     }
     if(is_send_valid==true){
-#ifdef __TCP_IP_TRANSMIT
+#ifdef __TCPIP_TRANSMIT
         *(UINT *)buffer_1553=buffer_pos;
         buffer_pos+=PACKAGE_HEADER_SIZE_LEN;
         *buffer_size=buffer_pos;

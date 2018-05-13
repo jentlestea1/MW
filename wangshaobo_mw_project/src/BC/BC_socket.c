@@ -134,6 +134,7 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
         recv_len = recv(connect_fd, recv_buffer,MAXLINE, 0);  
         recv_buffer[recv_len] = '\0';
         //printf("%d %d %d\n",recv_len,recv_buffer[0],recv_buffer[1]);
+        //printf("recv: %d\n",recv_len);
         if(recv_len!=0){
             //printf("----%d %d\n",recv_buffer[0],recv_buffer[1]);
             if(recv_buffer[1]==0x0&&recv_buffer[2]==0xff){
@@ -150,8 +151,10 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
                     printf("成功发送RT端口子地址列表给端口号为%d的RT\n",port);
                 }
             }
-            else
+            else{
+                //printf("recv: %d\n",recv_len);
                 ctrl_unpack_package_to_1553(traffic_repos_id,port,recv_buffer,recv_len);
+            }
         }  
         close(connect_fd);  
     }  

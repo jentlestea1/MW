@@ -283,10 +283,10 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
         usleep(10000);
         int i=0;
         UINT frame_size_tmp;
-        printf("ret_size:%d\n",ret_size);
+        //printf("ret_size:%d\n",ret_size);
         for(i=0;i<ret_size;){
 	        frame_size_tmp = (ret_size-i)>8?8:(ret_size-i);
-            printf("frame_size_tmp:%d\n",frame_size_tmp);
+            //printf("frame_size_tmp:%d\n",frame_size_tmp);
             frame=serial_frame(VCAN_DATA_FRAME_FLAG,ret_buff+i,frame_size_tmp);
             i+=frame_size_tmp;
             RT_send_frame(frame);
