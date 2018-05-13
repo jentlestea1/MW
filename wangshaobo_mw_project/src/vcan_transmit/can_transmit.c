@@ -5,6 +5,7 @@
 //vcan接口目前只支持在qemu上运行
 
 #include "compile_type.h"
+#ifdef __VCAN_TRANSMIT
 #include "can_transmit.h"
 #include "can_sys.h"
 #include <fsu_pthread.h>
@@ -41,6 +42,9 @@ void canIrq_handler(){
 		if((device_recv->rx_in+1)%BUFFERSIZE == device_recv->rx_out) {
    			can_write8(0x04, device_recv->mem_base + SJA_COMMAND_REG);// Release receive buffer.
 			printf("ignored. \n");
+            pthread_mutex_lock(&condition_mutex);
+            pthread_cond_signal(&condition_cond);
+            pthread_mutex_unlock(&condition_mutex);
             return;   	 // No buffer, ignore this one.
 		}
 		receive_message(device_recv->mem_base, &(device_recv->rx_buf[device_recv->rx_in]));
@@ -134,7 +138,7 @@ int vcan_send_package(unsigned char *buf,unsigned int size){
     device_write(device_send,frame);
     //mdelay(500);
 
-    int i=0;
+   int i=0;
     for(i=0;i<size;){
 	    UINT frame_size_tmp = (size-i)>8?8:(size-i);
         frame=serial_frame(VCAN_DATA_FRAME_FLAG,buf+i,frame_size_tmp);
@@ -184,3 +188,5 @@ int test_send(){
     pthread_create(&tid1,NULL,(pthread_func_t)run_send,NULL);
     mdelay(15000);
 }
+#endif
+

@@ -30,6 +30,7 @@ int frame_type_detect(struct can_frame frame,UCHAR* w_buf,UINT *size,bool size_f
         }
     }
     else{
+
         if(w_buf==NULL)return VCAN_DATA_FRAME_FLAG;
         int i=0;
         for(i=0;i<frame.can_dlc;i++){

@@ -1,3 +1,5 @@
+#include "compile_type.h"
+#ifdef __VCAN_TRANSMIT
 #include "can_sys.h"
 
 void mdelay(int d){	   //延时函数
@@ -176,4 +178,4 @@ can_frame* device_read(can_dev *device){
 	//device->rx_count--;
 	return frame;
 }
-
+#endif

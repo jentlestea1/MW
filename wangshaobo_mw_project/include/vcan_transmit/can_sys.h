@@ -1,6 +1,7 @@
 #ifndef CAN_SYS_H__
 #define CAN_SYS_H__
-
+#include "compile_type.h"
+#ifdef __VCAN_TRANSMIT
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -110,5 +111,5 @@ void display_can(struct can_frame *can);
 
 extern void *catch_interrupt (void func(), int irq);
 
-
+#endif
 #endif

@@ -35,7 +35,7 @@ CCFLAGS = -I ./include/type -I ./include/app -I ./include/RT/ -I ./include/data_
 		  -I ./include/mxml #-DDEBUG
 
 ENDFALGS = -lpthread -lm
-BC_CC = sparc-elf-gcc #-O2 #sparc-elf-gcc #-std=c89 -pedantic -Wall -Wstrict-prototypes -Wno-missing-braces -O6 -I. $*
+BC_CC = cc #sparc-elf-gcc #-O2 #sparc-elf-gcc #-std=c89 -pedantic -Wall -Wstrict-prototypes -Wno-missing-braces -O6 -I. $*
 RT_CC = cc
 BC_OBJ = main.o manage_transport_center.o app.o BC_socket.o BC_control.o package.o \
 		 control_package.o control_data_stream.o control_traffic_light.o traffic_light.o \

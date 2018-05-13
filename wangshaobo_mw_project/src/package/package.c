@@ -57,6 +57,9 @@ void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf
 #ifdef __TCP_IP_TRANSMIT
     if(buf_size!=buffer_pos+PACKAGE_HEADER_SIZE_LEN)
         printf("unpack to 1553有数据丢失\n");
+    else {
+        printf("unpack sucess\n");
+    }
 #elif __VCAN_TRANSMIT
     if(buf_size!=buffer_pos)
         printf("unpack to 1553有数据丢失\n");
