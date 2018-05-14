@@ -273,15 +273,15 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
     pthread_mutex_unlock(&RT_recv_mutex);
     //正式发送数据
     while(true){
-        usleep(1000000);
+        usleep(100000);
         memset(ret_buff,0,4096);
         pack_package(ret_buff,4096,&ret_size);
+        int i=0;
         if(ret_size==0)
             continue;
         frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,ret_size);
         RT_send_frame(frame);
-        usleep(10000);
-        int i=0;
+        usleep(1000);
         UINT frame_size_tmp;
         //printf("ret_size:%d\n",ret_size);
         for(i=0;i<ret_size;){
@@ -290,7 +290,7 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
             frame=serial_frame(VCAN_DATA_FRAME_FLAG,ret_buff+i,frame_size_tmp);
             i+=frame_size_tmp;
             RT_send_frame(frame);
-            usleep(10000);
+            usleep(1000);
         }
     }
 #endif

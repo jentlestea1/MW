@@ -124,6 +124,7 @@ void pack_package(unsigned char* buffer,UINT buffer_len,UINT* buffer_size){
         read_write_buffer(pos,read_buffer_tmp,read_size,&size);
         if(size!=0)is_send_valid=true;
         tmp=size;
+        if(size!=0)printf("port:%d size:%d\n",get_child_port(pos),size);
         tmp|=RT_DATA_BLOCK_VALID_PREFIX;
         *(p_buffer_data+buffer_pos)=tmp;
         //*(p_buffer_data+buffer_pos)|=RT_DATA_BLOCK_VALID_PREFIX;

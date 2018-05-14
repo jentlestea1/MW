@@ -32,7 +32,7 @@
 #ifdef __VCAN_TRANSMIT
 #define htonl(x) (((x)<<24)&0xff000000)|(((x)<<8)&0x00ff0000)|\
     (((x)>>8)&0x0000ff00)|(((x)>>24)&0x000000ff)
-#ifndef __RT_INCLUDE  //RT使用GCC编译自带系统库
+#ifndef __RT_INCLUDE
 #include "can_sys.h"
 #endif
 #define PACKAGE_HEADER (UINT)0xff0000ff

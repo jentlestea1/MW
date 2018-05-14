@@ -47,6 +47,7 @@ void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf
                 printf("write err!");
                 return;
             }
+            printf("收到 dev_lid:%s size:%d\n",dev_lid,size);
             buffer_pos+=block_size;
         }
         else{
@@ -102,6 +103,7 @@ void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,ch
         else{
             is_send_valid=true;
             *(buffer_tmp+buffer_pos)=size;
+            printf("---发送 dev_lid:%s\n",dev_lid);
             *(buffer_tmp+buffer_pos)|=DATA_BLOCK_VALID_PREFIX;
             buffer_pos++;
             memcpy(buffer_tmp+buffer_pos,read_buffer,size);

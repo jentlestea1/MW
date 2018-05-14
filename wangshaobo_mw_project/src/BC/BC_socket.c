@@ -95,13 +95,13 @@ void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){
 
 }
 
+static unsigned char    recv_buffer[4096];  
+static bool send_port_array_flag =false;       
 void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受传回的数据
 {  
         int recv_len;  
         void* p_config_node_tmp=get_config_node(config_id);
         UINT traffic_repos_id=get_config_node_traffic_repos_id(p_config_node_tmp);
-        unsigned char    recv_buffer[4096];  
-
 #ifdef __TCPIP_TRANSMIT
 
         int    socket_fd, connect_fd;  
@@ -137,7 +137,7 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
         //printf("recv: %d\n",recv_len);
         if(recv_len!=0){
             //printf("----%d %d\n",recv_buffer[0],recv_buffer[1]);
-            if(recv_buffer[1]==0x0&&recv_buffer[2]==0xff){
+            if(send_port_array_flag==false&&recv_buffer[1]==0x0&&recv_buffer[2]==0xff){
                 //发送端口列表给RT
                 //printf("ttt\n");
                 memset(recv_buffer,0,4096);
@@ -149,6 +149,7 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
                     perror("发送RT端口子地址列表给RT失败\n");
                 else{
                     printf("成功发送RT端口子地址列表给端口号为%d的RT\n",port);
+                    send_port_array_flag=true;
                 }
             }
             else{
@@ -167,7 +168,7 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
         recv_buffer[recv_len] = '\0';
         if(recv_len!=0){
            //printf("len:%d %x %x %x\n",recv_len,recv_buffer[0],recv_buffer[1],recv_buffer[2]);
-            if(recv_buffer[0]==0x0&&recv_buffer[1]==0xff){
+            if(send_port_array_flag==false&&recv_buffer[0]==0x0&&recv_buffer[1]==0xff){
                 memset(recv_buffer,0,4096);
                 UINT port_len=get_RT_sub_addr_array(port,(UINT *)(recv_buffer+4));
                 *(UINT *)recv_buffer=port_len;
@@ -175,6 +176,7 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
                     printf("发送RT端口子地址列表给RT失败\n");
                 else{
                     printf("成功发送RT端口子地址列表给端口号为%d的RT\n",port);
+                    send_port_array_flag=true;
                 }
         }
         else{
