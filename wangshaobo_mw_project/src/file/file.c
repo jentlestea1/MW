@@ -4,9 +4,15 @@
 #include<string.h>
 #include"relevant_struct_def.h"
 #include "unistd.h"
+#include "pthread.h"
+pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void add_string(UINT send_or_rec,double data,UINT port){
     char a[20]={0};
+    //加互斥锁
+    pthread_mutex_lock(&mutex);
     sprintf(a,"%d:%lf:%d;",send_or_rec,data,port);
+    pthread_mutex_unlock(&mutex);
     strcat(out_put_str,a);
 }
 void out_put(void){
@@ -26,6 +32,7 @@ void set_is_end(void){
 UINT is_end_t(void){
     return is_end;
 }
+
 void judge_result(void){
     FILE* fp;
     char buffer[100000]={0};
