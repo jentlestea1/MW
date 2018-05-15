@@ -67,7 +67,7 @@ BC_OBJ = main.o manage_transport_center.o app.o BC_socket.o BC_control.o package
 
 RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def_rt.o m_type_rt.o file.o
 
-all : PRINT_COMPILE_INFO BC RT
+all : PRINT_COMPILE_INFO BC.out RT.out
 	
 PRINT_COMPILE_INFO:
 	@echo 'BC_CC : '$(BC_CC)' version : '$(BC_CC_VERSION)
@@ -80,10 +80,10 @@ PRINT_COMPILE_INFO:
 	@echo '*'' @ $(MAKE)                 #等同make PROTOCOL=TCPIP'
 	@echo '******************************************************'
 	@echo "\n"
-BC : $(BC_OBJ)
-	$(BC_CC) -o BC $(BC_OBJ) $(ENDFALGS)
-RT : $(RT_OBJ)
-	$(RT_CC) -o RT $(RT_OBJ) $(ENDFALGS)
+BC.out : $(BC_OBJ)
+	$(BC_CC) -o BC.out $(BC_OBJ) $(ENDFALGS)
+RT.out : $(RT_OBJ)
+	$(RT_CC) -o RT.out $(RT_OBJ) $(ENDFALGS)
 	mv *.o ./obj/
 $(BC_OBJ): %.o: %.c
 	$(BC_CC) -c $(CCFLAGS) $< -o $@
