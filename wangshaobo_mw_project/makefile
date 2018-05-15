@@ -80,6 +80,8 @@ PRINT_COMPILE_INFO:
 	@echo '*'' @ $(MAKE)                 #等同make PROTOCOL=TCPIP'
 	@echo '******************************************************'
 	@echo "\n"
+	$(MAKE) clean
+	@echo "\n"
 BC.out : $(BC_OBJ)
 	$(BC_CC) -o BC.out $(BC_OBJ) $(ENDFALGS)
 RT.out : $(RT_OBJ)

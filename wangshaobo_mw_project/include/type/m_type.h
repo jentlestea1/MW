@@ -30,8 +30,8 @@
 #define SEND_BLOCK_POS 2
 #define RECEIVE_BLOCK_POS 3
 #ifdef __VCAN_TRANSMIT
-#define htonl(x) (((x)<<24)&0xff000000)|(((x)<<8)&0x00ff0000)|\
-    (((x)>>8)&0x0000ff00)|(((x)>>24)&0x000000ff)
+#define htonl(x) ( (( (x) & 0x000000ff)<<24)|(( (x) & 0x0000ff00)<<8)|\
+    (( (x) & 0x00ff0000)>>8)|(( (x) & 0xff000000)>>24) )
 #ifndef __RT_INCLUDE
 #include "can_sys.h"
 #endif

@@ -22,11 +22,11 @@ int frame_type_detect(struct can_frame frame,UCHAR* w_buf,UINT *size,bool size_f
             return VCAN_INVALID_FRAME_FLAG;
         else{
             UINT a=*(int *)(frame.data+4);
+            printf("-0x%x\n",a);
             a=htonl(a);  //两端大小端不一样的时候需要转换
-            else{
-                *size=a;
-                return VCAN_SIZE_FRAME_FLAG;
-            }
+            printf("--0x%x\n",a);
+            *size=a;
+            return VCAN_SIZE_FRAME_FLAG;
         }
     }
     else{
@@ -54,7 +54,7 @@ struct can_frame serial_frame(int serial_type,UCHAR* r_buf,UINT size){
         else{
             if(r_buf==NULL){
                 printf("err,r_buf不能为NULL,非法序列化操作\n");
-                return;
+                return frame;
             }
 
             int i=0;
