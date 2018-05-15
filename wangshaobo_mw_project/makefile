@@ -30,21 +30,31 @@ vpath %.h ./include/vcan_transmit/
 vpath %.h ./include/mxml/
 
 
-V_PROTOCOL = -D$(PROTOCOL)_PROTOCOL
+ifeq ($(PROTOCOL),VCAN)
+	BC_CC = sparc-elf-gcc
+	RT_CC = cc
+	V_PROTOCOL = -D$(PROTOCOL)_PROTOCOL
+else
+ifeq ($(PROTOCOL),TCPIP)
+	BC_CC = cc
+	RT_CC = cc
+	V_PROTOCOL = -DSOCKET_PROTOCOL
+else
+	BC_CC = cc
+	RT_CC = cc
+	PROTOCOL = TCPIP
+	V_PROTOCOL = -DSOCKET_PROTOCOL
+endif
+endif
+BC_CC_VERSION = `$(BC_CC) --version`
+RT_CC_VERSION = `$(RT_CC) --version`
+
 CCFLAGS = -I ./include/type -I ./include/app -I ./include/RT/ -I ./include/data_stream/ -I ./include/file/ \
 		  -I ./include/event -I ./include/package -I ./include/pack_rule_descrip -I ./include/traffic_light \
 		  -I ./include/vi_dev_visit_sys -I ./include/xml_parser -I ./include/BC -I ./include/vcan_transmit \
 		  -I ./include/mxml  $(V_PROTOCOL) #-DVCAN_PROTOCOL #-DSOCKET_PROTOCOL #-DDEBUG
 
 ENDFALGS = -lpthread -lm
-
-ifeq ($(PROTOCOL),VCAN)
-	BC_CC = sparc-elf-gcc
-	RT_CC = cc
-else
-	BC_CC = cc
-	RT_CC = cc
-endif
 
 #BC_CC = sparc-elf-gcc #-O2 #sparc-elf-gcc #-std=c89 -pedantic -Wall -Wstrict-prototypes -Wno-missing-braces -O6 -I. $*
 BC_OBJ = main.o manage_transport_center.o app.o BC_socket.o BC_control.o package.o \
@@ -57,8 +67,19 @@ BC_OBJ = main.o manage_transport_center.o app.o BC_socket.o BC_control.o package
 
 RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def_rt.o m_type_rt.o file.o
 
-all : BC RT
+all : PRINT_COMPILE_INFO BC RT
 	
+PRINT_COMPILE_INFO:
+	@echo 'BC_CC : '$(BC_CC)' version : '$(BC_CC_VERSION)
+	@echo 'RT_CC : '$(RT_CC)' version : '$(RT_CC_VERSION)
+	@echo "PROTOCOL : "$(PROTOCOL)"\n"
+	@echo '******************************************************'
+	@echo '*''                 @MAKE'
+	@echo '*'' @ $(MAKE) PROTOCOL=VCAN   #使用VCAN传输协议'
+	@echo '*'' @ $(MAKE) PROTOCOL=TCPIP  #使用TCPIP传输协议'
+	@echo '*'' @ $(MAKE)                 #等同make PROTOCOL=TCPIP'
+	@echo '******************************************************'
+	@echo "\n"
 BC : $(BC_OBJ)
 	$(BC_CC) -o BC $(BC_OBJ) $(ENDFALGS)
 RT : $(RT_OBJ)

@@ -281,7 +281,7 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
             continue;
         frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,ret_size);
         RT_send_frame(frame);
-        usleep(1000);
+        usleep(10000);
         UINT frame_size_tmp;
         //printf("ret_size:%d\n",ret_size);
         for(i=0;i<ret_size;){
@@ -290,7 +290,7 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
             frame=serial_frame(VCAN_DATA_FRAME_FLAG,ret_buff+i,frame_size_tmp);
             i+=frame_size_tmp;
             RT_send_frame(frame);
-            usleep(1000);
+            usleep(10000);
         }
     }
 #endif
@@ -323,18 +323,18 @@ void* generate_data_1(void* argc){
     printf("1号数据源即将产生数据\n");
     usleep(5000000);
     unsigned char recv_buffer[5];
-    double d=20.005;
-    int d1=20;
+    static double d=20.005;
+    static int d1=20;
     int d2=5;
     int d3=3;
-    recv_buffer[0]=d1;
-    recv_buffer[1]=d2;
-    recv_buffer[2]=d3;
-    recv_buffer[3]='\0';
     UINT size;
     UINT time;
     UINT t=TIMES;
     while(t--){
+        recv_buffer[0]=d1;
+        recv_buffer[1]=d2;
+        recv_buffer[2]=d3;
+        recv_buffer[3]='\0';
         time=m_random();
         usleep(1000000*time);
         write_write_buffer(8001,recv_buffer,strlen(recv_buffer),&size);
@@ -344,6 +344,8 @@ void* generate_data_1(void* argc){
         printf("位置：RT，类型：发送；数据：%f；大小：%d；端口：%d    时间戳：%d/%d/%d\n",d,size,8001,((timeStamp*)p_time)->hour,((timeStamp*)p_time)->minute,((timeStamp*)p_time)->second);
         add_string(SEND,d,8001);
         free_time_node(&p_time);
+        d++;
+        d1++;
     }
     set_is_end();
 }
@@ -352,18 +354,18 @@ void* generate_data_2(void* argc){
     printf("2号数据源即将产生数据\n");
     usleep(5000000);
     unsigned char recv_buffer[5];
-    double d=30.01;
-    int d1=30;
+    static double d=30.01;
+    static int d1=30;
     int d2=1;
     int d3=2;
-    recv_buffer[0]=d1;
-    recv_buffer[1]=d2;
-    recv_buffer[2]=d3;
-    recv_buffer[3]='\0';
     UINT size;
     UINT time;
     UINT t=TIMES;
     while(t--){
+        recv_buffer[0]=d1;
+        recv_buffer[1]=d2;
+        recv_buffer[2]=d3;
+        recv_buffer[3]='\0';
         time=m_random();
         usleep(1000000*time);
         write_write_buffer(8002,recv_buffer,strlen(recv_buffer),&size);
@@ -373,6 +375,8 @@ void* generate_data_2(void* argc){
         printf("位置：RT，类型：发送；数据：%f；大小：%d；端口：%d    时间戳：%d/%d/%d\n",d,size,8002,((timeStamp*)p_time)->hour,((timeStamp*)p_time)->minute,((timeStamp*)p_time)->second);
         add_string(SEND,d,8002);
         free_time_node(&p_time);
+        d++;
+        d1++;
     }
     set_is_end();
 }
@@ -381,12 +385,13 @@ void* generate_data_4(void* argc){
     printf("4号数据源即将产生数据\n");
     usleep(5000000);
     unsigned char recv_buffer[5];
-    recv_buffer[0]=4;
-    recv_buffer[1]='\0';
+    static int d=4;
     UINT size;
     UINT time;
     UINT t=TIMES;
     while(t--){
+        recv_buffer[0]=d;
+        recv_buffer[1]='\0';
         time=m_random();
         usleep(1000000*time);
         write_write_buffer(8004,recv_buffer,strlen(recv_buffer),&size);
@@ -396,6 +401,7 @@ void* generate_data_4(void* argc){
         printf("位置：RT，类型：发送；数据：%d；大小：%d；端口：%d    时间戳：%d/%d/%d\n",recv_buffer[0],size,8004,((timeStamp*)p_time)->hour,((timeStamp*)p_time)->minute,((timeStamp*)p_time)->second);
         add_string(SEND,recv_buffer[0],8004);
         free_time_node(&p_time);
+        d++;
     }
     set_is_end();
 }
@@ -404,12 +410,13 @@ void* generate_data_5(void* argc){
     printf("5号数据源即将产生数据\n");
     usleep(5000000);
     unsigned char recv_buffer[5];
-    recv_buffer[0]=5;
-    recv_buffer[1]='\0';
+    static int d=5;
     UINT size;
     UINT time;
     UINT t=TIMES;
     while(t--){
+        recv_buffer[0]=d;
+        recv_buffer[1]='\0';
         time=m_random();
         usleep(1000000*time);
         write_write_buffer(8005,recv_buffer,strlen(recv_buffer),&size);
@@ -419,6 +426,7 @@ void* generate_data_5(void* argc){
         printf("位置：RT，类型：发送；数据：%d；大小：%d；端口：%d    时间戳：%d/%d/%d\n",recv_buffer[0],size,8005,((timeStamp*)p_time)->hour,((timeStamp*)p_time)->minute,((timeStamp*)p_time)->second);
         add_string(SEND,recv_buffer[0],8005);
         free_time_node(&p_time);
+        d++;
     }
     set_is_end();
 }
@@ -427,12 +435,13 @@ void* generate_data_6(void* argc){
     printf("6号数据源即将产生数据\n");
     usleep(5000000);
     unsigned char recv_buffer[5];
-    recv_buffer[0]=6;
-    recv_buffer[1]='\0';
+    static int d=6;
     UINT size;
     UINT time;
     UINT t=TIMES;
     while(t--){
+        recv_buffer[0]=d;
+        recv_buffer[1]='\0';
         time=m_random();
         usleep(1000000*time);
         write_write_buffer(8006,recv_buffer,strlen(recv_buffer),&size);
@@ -442,6 +451,7 @@ void* generate_data_6(void* argc){
         printf("位置：RT，类型：发送；数据：%d；大小：%d；端口：%d    时间戳：%d/%d/%d\n",recv_buffer[0],size,8006,((timeStamp*)p_time)->hour,((timeStamp*)p_time)->minute,((timeStamp*)p_time)->second);
         add_string(SEND,recv_buffer[0],8006);
         free_time_node(&p_time);
+        d++;
     }
     set_is_end();
 }
@@ -450,12 +460,13 @@ void* generate_data_7(void* argc){
     printf("7号数据源即将产生数据\n");
     usleep(5000000);
     unsigned char recv_buffer[5];
-    recv_buffer[0]=7;
-    recv_buffer[1]='\0';
+    static int d=7;
     UINT size;
     UINT time;
     UINT t=TIMES;
     while(t--){
+        recv_buffer[0]=d;
+        recv_buffer[1]='\0';
         time=m_random();
         usleep(1000000*time);
         write_write_buffer(8007,recv_buffer,strlen(recv_buffer),&size);
@@ -465,6 +476,7 @@ void* generate_data_7(void* argc){
         printf("位置：RT，类型：发送；数据：%d；大小：%d；端口：%d    时间戳：%d/%d/%d\n",recv_buffer[0],size,8007,((timeStamp*)p_time)->hour,((timeStamp*)p_time)->minute,((timeStamp*)p_time)->second);
         add_string(SEND,recv_buffer[0],8007);
         free_time_node(&p_time);
+        d++;
     }
     set_is_end();
 }

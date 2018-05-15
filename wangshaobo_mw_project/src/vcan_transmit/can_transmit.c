@@ -42,9 +42,9 @@ void canIrq_handler(){
 		if((device_recv->rx_in+1)%BUFFERSIZE == device_recv->rx_out) {
    			can_write8(0x04, device_recv->mem_base + SJA_COMMAND_REG);// Release receive buffer.
 			printf("ignored. \n");
-            pthread_mutex_lock(&condition_mutex);
-            pthread_cond_signal(&condition_cond);
-            pthread_mutex_unlock(&condition_mutex);
+            //pthread_mutex_lock(&condition_mutex);
+            //pthread_cond_signal(&condition_cond);
+            //pthread_mutex_unlock(&condition_mutex);
             return;   	 // No buffer, ignore this one.
 		}
 		receive_message(device_recv->mem_base, &(device_recv->rx_buf[device_recv->rx_in]));
@@ -82,6 +82,7 @@ void init_device(){
 
 struct can_frame vcan_receive_frame(){
     can_frame *frame;
+
     while(device_recv->rx_in==device_recv->rx_out);
     frame = device_read(device_recv);
     //printf("size :%d 0x%x 0x%x",frame->can_dlc,*(UINT *)frame->data,*(UINT *)(frame->data+4));
