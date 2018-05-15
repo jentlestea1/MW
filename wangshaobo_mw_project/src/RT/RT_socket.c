@@ -177,7 +177,6 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
     unsigned char ret_buff[4096]={0};
     UINT ret_size;
 #ifdef __RT_TCPIP_TRANSMIT
-    printf("in create_RT_ret_socket_client\n");
     port_con* p_RT_port=(port_con*)RT_port;
     UINT port=p_RT_port->port+1;
     int    sockfd, n,recv_len;  
@@ -336,7 +335,11 @@ void* generate_data_1(void* argc){
         recv_buffer[2]=d3;
         recv_buffer[3]='\0';
         time=m_random();
+#ifdef __RT_VCAN_TRANSMIT
         usleep(1000000*time);
+#elif __RT_TCPIP_TRANSMIT
+        usleep(100000*time);
+#endif
         write_write_buffer(8001,recv_buffer,strlen(recv_buffer),&size);
         if(size!=3)printf("generate data err!\n");
         void* p_time=get_time_node();
@@ -344,8 +347,8 @@ void* generate_data_1(void* argc){
         printf("位置：RT，类型：发送；数据：%f；大小：%d；端口：%d    时间戳：%d/%d/%d\n",d,size,8001,((timeStamp*)p_time)->hour,((timeStamp*)p_time)->minute,((timeStamp*)p_time)->second);
         add_string(SEND,d,8001);
         free_time_node(&p_time);
-        d++;
-        d1++;
+        d=20.005+(time%10);
+        d1=20+(time%10);
     }
     set_is_end();
 }
@@ -367,7 +370,11 @@ void* generate_data_2(void* argc){
         recv_buffer[2]=d3;
         recv_buffer[3]='\0';
         time=m_random();
+#ifdef __RT_VCAN_TRANSMIT
         usleep(1000000*time);
+#elif __RT_TCPIP_TRANSMIT
+        usleep(100000*time);
+#endif
         write_write_buffer(8002,recv_buffer,strlen(recv_buffer),&size);
         if(size!=3)printf("generate data err!\n");
         void* p_time=get_time_node();
@@ -375,8 +382,8 @@ void* generate_data_2(void* argc){
         printf("位置：RT，类型：发送；数据：%f；大小：%d；端口：%d    时间戳：%d/%d/%d\n",d,size,8002,((timeStamp*)p_time)->hour,((timeStamp*)p_time)->minute,((timeStamp*)p_time)->second);
         add_string(SEND,d,8002);
         free_time_node(&p_time);
-        d++;
-        d1++;
+        d=30.01+(time%10);
+        d1=30+(time%10);
     }
     set_is_end();
 }
@@ -393,7 +400,11 @@ void* generate_data_4(void* argc){
         recv_buffer[0]=d;
         recv_buffer[1]='\0';
         time=m_random();
+#ifdef __RT_VCAN_TRANSMIT
         usleep(1000000*time);
+#elif __RT_TCPIP_TRANSMIT
+        usleep(100000*time);
+#endif
         write_write_buffer(8004,recv_buffer,strlen(recv_buffer),&size);
         if(size!=1)printf("generate data err!\n");
         void* p_time=get_time_node();
@@ -418,7 +429,11 @@ void* generate_data_5(void* argc){
         recv_buffer[0]=d;
         recv_buffer[1]='\0';
         time=m_random();
+#ifdef __RT_VCAN_TRANSMIT
         usleep(1000000*time);
+#elif __RT_TCPIP_TRANSMIT
+        usleep(100000*time);
+#endif
         write_write_buffer(8005,recv_buffer,strlen(recv_buffer),&size);
         if(size!=1)printf("generate data err!\n");
         void* p_time=get_time_node();
@@ -443,7 +458,11 @@ void* generate_data_6(void* argc){
         recv_buffer[0]=d;
         recv_buffer[1]='\0';
         time=m_random();
+#ifdef __RT_VCAN_TRANSMIT
         usleep(1000000*time);
+#elif __RT_TCPIP_TRANSMIT
+        usleep(100000*time);
+#endif
         write_write_buffer(8006,recv_buffer,strlen(recv_buffer),&size);
         if(size!=1)printf("generate data err!\n");
         void* p_time=get_time_node();
@@ -468,7 +487,11 @@ void* generate_data_7(void* argc){
         recv_buffer[0]=d;
         recv_buffer[1]='\0';
         time=m_random();
+#ifdef __RT_VCAN_TRANSMIT
         usleep(1000000*time);
+#elif __RT_TCPIP_TRANSMIT
+        usleep(100000*time);
+#endif
         write_write_buffer(8007,recv_buffer,strlen(recv_buffer),&size);
         if(size!=1)printf("generate data err!\n");
         void* p_time=get_time_node();

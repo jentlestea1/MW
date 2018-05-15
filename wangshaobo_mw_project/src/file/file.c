@@ -12,8 +12,8 @@ void add_string(UINT send_or_rec,double data,UINT port){
     //加互斥锁
     pthread_mutex_lock(&mutex);
     sprintf(a,"%d:%lf:%d;",send_or_rec,data,port);
-    pthread_mutex_unlock(&mutex);
     strcat(out_put_str,a);
+    pthread_mutex_unlock(&mutex);
 }
 void out_put(void){
     FILE* fp;

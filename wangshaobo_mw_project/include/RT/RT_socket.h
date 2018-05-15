@@ -1,9 +1,14 @@
 #ifndef MY_RT_SOCKET_H_
 #define MY_RT_SOCKET_H_
+#include "compile_type.h"
 #include "m_type.h"
 #include "RT_control.h"
 #define m_random() rand()%5
-#define TIMES 10
+#ifdef __RT_VCAN_TRANSMIT
+#define TIMES 10         
+#elif __RT_TCPIP_TRANSMIT
+#define TIMES 60        //TIMES为数据源发送数据次数，不要超过200
+#endif
 typedef struct port_con{
     UINT port;
 }port_con;

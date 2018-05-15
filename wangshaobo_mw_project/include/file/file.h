@@ -3,7 +3,7 @@
 #include "m_type.h"
 #define SEND 1
 #define RECEIVE 2
-#define STR_MAX_SIZE 0x4000
+#define STR_MAX_SIZE 0x10000 
 typedef struct t{
     UINT send_or_rec;
     double data;
