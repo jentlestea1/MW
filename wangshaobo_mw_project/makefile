@@ -92,4 +92,4 @@ $(RT_OBJ): %.o: %.c
 
 .PHONY : clean
 clean:
-	rm -f BC RT ./obj/*.o ./*.o
+	rm -f BC.out RT.out ./obj/*.o ./*.o
