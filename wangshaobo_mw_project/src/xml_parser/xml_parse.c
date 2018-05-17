@@ -209,8 +209,8 @@ mxml_node_t* findDependedNode(const char* content,UINT content_len,mxml_node_t* 
 
     /*处理字符串*/
     mxml_node_t* t=NULL;
-    char content_tmp[CONTENT_MAX_LEN];
-    char ROUTE[ROUTE_MAX_LEN][ROUTE_VALUE_MAX_LEN];
+    char content_tmp[CONTENT_MAX_LEN]={0};
+    char ROUTE[ROUTE_MAX_LEN][ROUTE_VALUE_MAX_LEN]={{0}};
     memset(ROUTE[ROUTE_CHANNEL_NAME_POS],0,ROUTE_VALUE_MAX_LEN);
     memset(ROUTE[ROUTE_CHANNEL_LID_VALUE_POS],0,ROUTE_VALUE_MAX_LEN);
     int j=0;
@@ -220,12 +220,12 @@ mxml_node_t* findDependedNode(const char* content,UINT content_len,mxml_node_t* 
     UINT ROUTE_VALUE_pos=0;
     bool isHaveChannel=false;
     char io_tag_name_tmp[TAG_NAME_MAX_LEN]="io_";
-    char io_tag_type[TAG_NAME_MAX_LEN];
+    char io_tag_type[TAG_NAME_MAX_LEN]={0};
     char io_tag_entity_suffix[TAG_NAME_MAX_LEN]="_entity";
     char io_tag_config_suffix[TAG_NAME_MAX_LEN]="_config";
-    char io_lid[TAG_NAME_MAX_LEN];
-    char channel_tag_name[TAG_NAME_MAX_LEN];
-    char channel_lid[TAG_NAME_MAX_LEN];
+    char io_lid[TAG_NAME_MAX_LEN]={0};
+    char channel_tag_name[TAG_NAME_MAX_LEN]={0};
+    char channel_lid[TAG_NAME_MAX_LEN]={0};
 
     /*删掉content的前后空字符*/
     int i=0;

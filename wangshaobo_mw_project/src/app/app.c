@@ -46,6 +46,9 @@ void str_to_double(double* data,char* str){
     *data = d;
 }
 void* app_read_pthread_func_f(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     unsigned char read_buf[200];
     unsigned char write_buf[200];
     UINT read_size;
@@ -86,6 +89,9 @@ void* app_read_pthread_func_f(void* argc){
 }
 
 void* app_read_pthread_func_s(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     unsigned char read_buf[200];
     unsigned char write_buf[200];
     UINT read_size;
@@ -112,6 +118,9 @@ void* app_read_pthread_func_s(void* argc){
 }
 
 void* app_read_pthread_func_t(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     unsigned char read_buf[200];
     unsigned char write_buf[200];
     UINT read_size;

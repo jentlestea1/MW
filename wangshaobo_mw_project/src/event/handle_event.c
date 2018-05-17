@@ -79,6 +79,9 @@ void* get_evt_repos(UINT pos){
 }
 
 void* evt_repos_scan_pthread_func(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     UINT i=0;
     UINT pos=-1;
     for(;i<REPOS_MAX_LEN;i++){

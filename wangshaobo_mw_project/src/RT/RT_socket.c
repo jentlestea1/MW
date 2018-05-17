@@ -89,6 +89,9 @@ UINT RT_receive_package(unsigned char *buffer){   //返回接收到的全帧大�
 
 
 void* create_RT_socket_server(void* RT_port){ 
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     unsigned char    buffer[4096];  
     UINT size;
 #ifdef __RT_TCPIP_TRANSMIT
@@ -174,6 +177,9 @@ void* create_RT_socket_server(void* RT_port){
 //}
 
 void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     sleep_ms(500);
     unsigned char ret_buff[4096]={0};
     UINT ret_size;
@@ -296,6 +302,9 @@ void* get_one_port_con(){
 }
 */
 void* generate_data_1(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     printf("1号数据源即将产生数据\n");
     sleep_ms(5000);
     unsigned char recv_buffer[5];
@@ -327,6 +336,9 @@ void* generate_data_1(void* argc){
 }
 
 void* generate_data_2(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     printf("2号数据源即将产生数据\n");
     sleep_ms(5000);
     unsigned char recv_buffer[5];
@@ -358,6 +370,9 @@ void* generate_data_2(void* argc){
 }
 
 void* generate_data_4(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     printf("4号数据源即将产生数据\n");
     sleep_ms(5000);
     unsigned char recv_buffer[5];
@@ -383,6 +398,9 @@ void* generate_data_4(void* argc){
 }
 
 void* generate_data_5(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     printf("5号数据源即将产生数据\n");
     sleep_ms(5000);
     unsigned char recv_buffer[5];
@@ -408,6 +426,9 @@ void* generate_data_5(void* argc){
 }
 
 void* generate_data_6(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     printf("6号数据源即将产生数据\n");
     sleep_ms(5000);
     unsigned char recv_buffer[5];
@@ -433,6 +454,9 @@ void* generate_data_6(void* argc){
 }
 
 void* generate_data_7(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     printf("7号数据源即将产生数据\n");
     sleep_ms(5000);
     unsigned char recv_buffer[5];
@@ -469,6 +493,9 @@ void generate_data(void){
 
 //下面两个函数创建RT的socket
 void* RT_socket_pthread_func(void* p_RT_config){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     pthread_t tid;
     int err;
     err=pthread_create(&tid,NULL,create_RT_socket_server,p_RT_config);
@@ -477,6 +504,9 @@ void* RT_socket_pthread_func(void* p_RT_config){
 }
 
 void* RT_ret_socket_pthread_func(void* p_RT_config){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     pthread_t tid;
     int err;
     err=pthread_create(&tid,NULL,create_RT_ret_socket_client,p_RT_config);

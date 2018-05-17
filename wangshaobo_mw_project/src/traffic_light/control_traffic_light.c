@@ -47,6 +47,9 @@ void config_traffic(){
     }
 }
 void* traffic_repos_scan_pthread_func(void* argc){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     int i=0;
     UINT msec=10;
     for(;i<TRAFFIC_REPOS_ARRAY_MAX_LEN;i++){

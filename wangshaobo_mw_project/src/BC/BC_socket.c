@@ -194,6 +194,9 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
 }
 
 void* scan_1553_RT_section_pthread_func(void* p_scan_config){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
     //实现一个扫描算法
     scan_config* p_scan_config_tmp=(scan_config*)p_scan_config;
     UINT config_id=p_scan_config_tmp->config_id;
@@ -214,6 +217,9 @@ void* scan_1553_RT_section_pthread_func(void* p_scan_config){
 }
 
 void* bus_socket_pthread_func(void* p_socket_config){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
    socket_config* p_socket_config_tmp=(socket_config*)p_socket_config;
    UINT config_id_tmp=p_socket_config_tmp->config_id;
    UINT RT_config_id_tmp=p_socket_config_tmp->RT_config_id;
@@ -222,6 +228,9 @@ void* bus_socket_pthread_func(void* p_socket_config){
 }
 
 void* bus_ret_socket_pthread_func(void* p_socket_config){
+#ifdef PTHREAD_RECYCLE
+    pthread_detach(pthread_self());
+#endif
    socket_config* p_socket_config_tmp=(socket_config*)p_socket_config;
    UINT config_id_tmp=p_socket_config_tmp->config_id;
    UINT port_tmp=p_socket_config_tmp->port;
@@ -235,6 +244,7 @@ void create_scan_1553_RT_section_unit(void* p_scan_config){
 #elif __SPARC_GCC_MMU
     int err=pthread_create(&tid,NULL,(pthread_func_t)scan_1553_RT_section_pthread_func,p_scan_config);
 #endif
+    
     if(err!=0) printf("创建RT section描线程失败...\n");
     else printf("成功创建RT section扫描线程，该扫描线程每20ms打包一次数据...\n");
 }

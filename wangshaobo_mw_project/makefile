@@ -56,7 +56,8 @@ RT_CC_VERSION = `$(RT_CC) --version`
 CCFLAGS = -I ./include/type -I ./include/app -I ./include/RT/ -I ./include/data_stream/ -I ./include/file/ \
 		  -I ./include/event -I ./include/package -I ./include/pack_rule_descrip -I ./include/traffic_light \
 		  -I ./include/vi_dev_visit_sys -I ./include/xml_parser -I ./include/BC -I ./include/vcan_transmit \
-		  -I ./include/mxml  -I ./include/interval -I ./include/semaphore $(V_PROTOCOL) #-DVCAN_PROTOCOL #-DSOCKET_PROTOCOL #-DDEBUG
+		  -I ./include/mxml  -I ./include/interval -I ./include/semaphore $(V_PROTOCOL) -DPTHREAD_RECYCLE\
+		  #-DVCAN_PROTOCOL #-DSOCKET_PROTOCOL #-DDEBUG
 
 ENDFALGS = -lpthread -lm
 
