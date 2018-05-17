@@ -361,7 +361,7 @@ char* get_priority_deterio_dev_lid(char* bus_type,char* bus_lid,char* RT_lid,UIN
 
 UINT get_dev_trans_attr(char* bus_type,char* bus_lid,char*RT_lid,char* dev_lid,UINT attr_flag){
     void* rule_p=get_form_rule_item(bus_type,bus_lid,RT_lid);
-    if(rule_p==NULL)return -1;
+    if(rule_p==NULL)return 0;
     UINT info_num=get_form_info_section_len(rule_p);
     int k=0;
     UINT attr_value;

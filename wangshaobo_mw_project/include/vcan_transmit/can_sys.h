@@ -24,7 +24,8 @@ typedef struct can_frame {
 	uint8_t    data[8] __attribute__((aligned(8)));
 }can_frame;
 
-#define BUFFERSIZE		6
+//#define BUFFERSIZE		6
+#define BUFFERSIZE		200   //设大一点，最后确定合适的大小
 #define CANSYS_IRQ_NO 			13
 
 typedef struct can_dev

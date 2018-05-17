@@ -4,11 +4,7 @@
 #include "m_type.h"
 #include "RT_control.h"
 #define m_random() rand()%5
-#ifdef __RT_VCAN_TRANSMIT
-#define TIMES 10         
-#elif __RT_TCPIP_TRANSMIT
 #define TIMES 60        //TIMES为数据源发送数据次数，不要超过200
-#endif
 typedef struct port_con{
     UINT port;
 }port_con;

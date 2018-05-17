@@ -383,5 +383,4 @@ void judge_result(void){
     printf("\n8005/8006/8007端口匹配成功\n\n");
     usleep(50000);
     printf("数据匹配成功,测试通过!\n");
-    exit(0);
 }

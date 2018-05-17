@@ -9,6 +9,8 @@
 #include "address_map.h"
 #include "route_map.h"
 #include "string.h"
+#include "stdio.h"
+#include "sync_collect.h"
 
 void ctrl_app_write_data(UINT traffic_repos_id,char* dev_lid,unsigned char* buffer,UINT write_size,UINT* size){
     app_write_data_func(dev_lid,buffer,write_size,size);
@@ -73,14 +75,25 @@ void read_data(char* dev_lid,unsigned char* buffer,UINT buffer_size,UINT* size,v
     char* bus_type=((route*)p_route_tmp)->bus_type;
     char* bus_lid=((route*)p_route_tmp)->bus_lid;
     char* RT_lid=((route*)p_route_tmp)->RT_lid;
+    UINT write_region_size=get_write_region_size(bus_type,bus_lid,RT_lid,dev_lid);
+    if(write_region_size==0){
+        void *p=get_sync_collect(HASH_CONTROL_APP_READ_FLAG,0,0,dev_lid);
+        FLAG flag=get_sync_collect_flag(p);
+        if(flag==FLAG1){
+            write_sync_collect_flag(p,FLAG2);   //FLAG1正常，FLAG2阻塞
+            vi_wait(p);
+        }
+    }
+    //printf("dev_lid:%s bus_type:%s bus_lid:%s RT_lid:%s\n",dev_lid,bus_type,bus_lid,RT_lid);
     UINT read_block_size=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,SEND_BLOCK_FLAG);
     if(read_block_size>buffer_size){
         *size=0;
+        //printf("read_block_size:%d buffer_size:%d",read_block_size,buffer_size);
         throw_event(0,RT_lid,EVT_APP_READ_BLOCK_OVERFLOW);
         return;//抛出事件
     }
     if(auto_set==AUTO){
-        if(get_write_region_size(bus_type,bus_lid,RT_lid,dev_lid)<read_block_size){
+        if(write_region_size<read_block_size){
             *size=0;
             return;
         }

@@ -11,6 +11,7 @@
 #include <pthread.h>
 #elif __SPARC_GCC_MMU
 #include <fsu_pthread.h>
+#include "sync_collect.h"
 #endif
 
 int main(){

@@ -9,7 +9,7 @@
 void* get_traffic_repos_node(UINT traffic_repos_id);
 UINT  config_traffic_repos(char* bus_type,char* bus_lid);
 void config_traffic(void);
-void  traffic_repos_scan_func(UINT traffic_repos_id);
+bool  traffic_repos_scan_func(UINT traffic_repos_id);
 void* traffic_repos_scan_pthread_func(void* argc);
 void create_traffic_repos_scan_unit(void);
 void  set_traffic_light(UINT traffic_repos_id,UINT light_pos,TRAFFIC_STATUS traffic_status,IS_LOADED is_loaded,IS_BACK is_back);

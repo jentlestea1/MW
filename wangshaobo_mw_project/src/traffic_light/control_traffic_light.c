@@ -14,6 +14,10 @@
 #endif
 #include "stdio.h"
 #include "string.h"
+#include "interval.h"
+#include "sync_collect.h"
+#define MAX_MSEC 200
+#define MIN_MSEC 10
 
 static traffic_light_repos* p_traffic_light_repos_array[TRAFFIC_REPOS_ARRAY_MAX_LEN];
 UINT config_traffic_repos(char* bus_type,char* bus_lid){
@@ -44,15 +48,20 @@ void config_traffic(){
 }
 void* traffic_repos_scan_pthread_func(void* argc){
     int i=0;
+    UINT msec=10;
     for(;i<TRAFFIC_REPOS_ARRAY_MAX_LEN;i++){
         if(p_traffic_light_repos_array[i]!=NULL){
             while(true){
-                traffic_repos_scan_func(i);
-#ifdef __GCC_C99
-        usleep(10000);
-#elif __SPARC_GCC_MMU
-        sleep(1);
-#endif
+                bool scan_ret=false;
+                scan_ret=traffic_repos_scan_func(i);
+                if(scan_ret==false){
+                    msec*=2;
+                    msec=msec>MAX_MSEC?MAX_MSEC:msec;
+                }
+                else{
+                    msec=MIN_MSEC;
+                }
+        sleep_ms(msec);
             }
         }
     }
@@ -75,11 +84,14 @@ void  set_traffic_light(UINT traffic_repos_id,UINT light_pos,TRAFFIC_STATUS traf
     }
 }
 
-void traffic_repos_scan_func(UINT traffic_repos_id){
+//true代表扫描到数据
+bool traffic_repos_scan_func(UINT traffic_repos_id){
     /*
      * 刷新，10ms间隔
      */
-    if(traffic_repos_id<0||traffic_repos_id>=TRAFFIC_REPOS_ARRAY_MAX_LEN||p_traffic_light_repos_array[traffic_repos_id]==NULL)return;
+    bool ret=false;
+    if(traffic_repos_id<0||traffic_repos_id>=TRAFFIC_REPOS_ARRAY_MAX_LEN||p_traffic_light_repos_array[traffic_repos_id]==NULL)\
+        return false;
     traffic_light_repos* p_repos_tmp=(traffic_light_repos*)p_traffic_light_repos_array[traffic_repos_id];
         if(p_repos_tmp->is_traffic_enable==TRAFFIC_ENABLE){
             int i=0;
@@ -89,6 +101,7 @@ void traffic_repos_scan_func(UINT traffic_repos_id){
                 void* p_route_node=get_route_node();
                 for(;j<p_repos_tmp->dev_num[i];j++){
                         if(p_light_tmp->is_loaded==LOADED){
+                            ret=true;
                             if(p_light_tmp->traffic_status==UNCHECKED){
                                 p_light_tmp->traffic_status=GREEN;
                             }
@@ -108,6 +121,7 @@ void traffic_repos_scan_func(UINT traffic_repos_id){
                         UINT dev_read_block_size_tmp=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,RECEIVE_BLOCK_FLAG);
                         UINT dev_read_buffer_size;
                         if(!is_read_region_empty(bus_type,bus_lid,RT_lid,dev_lid)){
+                            ret=true;
                             p_light_tmp->traffic_status=GREEN;
                             p_light_tmp->is_loaded=LOADED;
                             if(dev_read_buffer_size=get_read_region_size(bus_type,bus_lid,RT_lid,dev_lid)>=READ_REGION_MAX_SIZE/2){
@@ -126,6 +140,12 @@ void traffic_repos_scan_func(UINT traffic_repos_id){
                         }
                         if(!is_write_region_empty(bus_type,bus_lid,RT_lid,dev_lid)){
                             p_light_tmp->is_back=BACK;
+                            void *p=get_sync_collect(HASH_CONTROL_APP_READ_FLAG,0,0,dev_lid);
+                            FLAG flag=get_sync_collect_flag(p);
+                            if(flag==FLAG2){                    //FLAG2阻塞 FLAG1正常
+                                write_sync_collect_flag(p,FLAG1);
+                                vi_signal(p);
+                            }
                         }
                         else{
                             p_light_tmp->is_back=NOT_BACK;
@@ -135,6 +155,7 @@ void traffic_repos_scan_func(UINT traffic_repos_id){
                 free_route_node(&p_route_node);
             }
         }
+        return ret;
 }
 
 void set_traffic_repos_disable(UINT traffic_repos_id){

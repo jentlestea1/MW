@@ -7,6 +7,10 @@
 #include "stdio.h"
 #include "math.h"
 #include "file.h"
+#include "handle_event.h"
+#ifdef __RT_VCAN_TRANSMIT
+#include "vcan_frame.h"
+#endif
 
 static UINT s_pos[MOUNT_DEV_MAX_NUM]={0};
 static UINT e_pos[MOUNT_DEV_MAX_NUM]={0};
@@ -91,7 +95,7 @@ void read_write_buffer(UINT pos,unsigned char* buffer,UINT read_size,UINT* size)
 void init_port_array(UINT *RT_sub_addr_array,UINT size){
     int i=0;
     if(size>=MOUNT_DEV_MAX_NUM){
-        printf("初始化RT端口不合法\n");
+        throw_event(0,NULL,RT_EVT_INITPORT_ERR);
         return;
     }
     len=size;
@@ -194,7 +198,8 @@ void RT_handle_package(UCHAR *buffer,UINT n){
                     port_pos++;
                 }
                 else{
-                    printf("port_pos大小出错\n");
+                    throw_event(0,NULL,RT_EVT_HANDLE_PACKAGE_ERR);
+                    //printf("port_pos大小出错\n");
                 }
                 //printf("\n----------port为%d的RT捕获到数据：%s发送给child_port:%d端口------------\n",port,send_buffer,child_port);
                 double d;
@@ -217,7 +222,8 @@ void RT_handle_package(UCHAR *buffer,UINT n){
                 memset(send_buffer,0,4096);
             }
             if(pos!=n){
-                printf("ERR:传输内容有误\n");
+                throw_event(0,NULL,RT_EVT_HANDLE_PACKAGE_ERR);
+                //printf("ERR:传输内容有误\n");
             }
 	}
 }

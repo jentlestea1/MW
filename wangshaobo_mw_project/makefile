@@ -14,6 +14,8 @@ vpath %.c ./src/BC/
 vpath %.c ./src/vcan_transmit/
 vpath %.c ./src/type/
 vpath %.c ./src/mxml/
+vpath %.c ./src/semaphore/
+vpath %.c ./src/interval
 vpath %.h ./include/type/
 vpath %.h ./include/app/
 vpath %.h ./include/RT/
@@ -28,6 +30,8 @@ vpath %.h ./include/xml_parser/
 vpath %.h ./include/BC/
 vpath %.h ./include/vcan_transmit/
 vpath %.h ./include/mxml/
+vpath %.h ./src/semaphore/
+vpath %.h ./src/interval
 
 
 ifeq ($(PROTOCOL),VCAN)
@@ -52,7 +56,7 @@ RT_CC_VERSION = `$(RT_CC) --version`
 CCFLAGS = -I ./include/type -I ./include/app -I ./include/RT/ -I ./include/data_stream/ -I ./include/file/ \
 		  -I ./include/event -I ./include/package -I ./include/pack_rule_descrip -I ./include/traffic_light \
 		  -I ./include/vi_dev_visit_sys -I ./include/xml_parser -I ./include/BC -I ./include/vcan_transmit \
-		  -I ./include/mxml  $(V_PROTOCOL) #-DVCAN_PROTOCOL #-DSOCKET_PROTOCOL #-DDEBUG
+		  -I ./include/mxml  -I ./include/interval -I ./include/semaphore $(V_PROTOCOL) #-DVCAN_PROTOCOL #-DSOCKET_PROTOCOL #-DDEBUG
 
 ENDFALGS = -lpthread -lm
 
@@ -61,24 +65,32 @@ BC_OBJ = main.o manage_transport_center.o app.o BC_socket.o BC_control.o package
 		 control_package.o control_data_stream.o control_traffic_light.o traffic_light.o \
 		 data_stream.o handle_data_package.o xml_parse.o relevant_struct_def.o \
 		 address_map.o route_map.o config_1553.o handle_event.o event.o handle_event_func.o \
-		 can_sys.o can_transmit.o m_type.o mxml-attr.o mxml-entity.o mxml-file.o mxml-get.o mxml-index.o \
+		 can_sys.o can_transmit.o vcan_frame.o sync_collect.o semaphore_hash.o mxml-attr.o mxml-entity.o mxml-file.o mxml-get.o mxml-index.o \
 		 mxml-node.o mxml-private.o mxml-search.o mxml-set.o mxml-string.o
 		 
 
-RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def_rt.o m_type_rt.o file.o
+RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def_rt.o vcan_frame_rt.o file.o handle_event_rt.o \
+		 event_rt.o
 
 all : PRE_OPERA BC.out RT.out
 	
 PRE_OPERA:
-	@echo 'BC_CC : '$(BC_CC)' version : '$(BC_CC_VERSION)
-	@echo 'RT_CC : '$(RT_CC)' version : '$(RT_CC_VERSION)
-	@echo "PROTOCOL : "$(PROTOCOL)"\n"
+	@echo '<BC_CC> : '$(BC_CC), ' version : '$(BC_CC_VERSION)
+	@echo '<RT_CC> : '$(RT_CC), ' version : '$(RT_CC_VERSION)
+	@echo "<PROTOCOL> : "$(PROTOCOL)"\n"
 	@echo '******************************************************'
 	@echo '*''                 @MAKE'
 	@echo '*'' @ $(MAKE) PROTOCOL=VCAN   #使用VCAN传输协议'
 	@echo '*'' @ $(MAKE) PROTOCOL=TCPIP  #使用TCPIP传输协议'
 	@echo '*'' @ $(MAKE)                 #等同make PROTOCOL=TCPIP'
 	@echo '******************************************************'
+ifneq ($(PROTOCOL),VCAN)
+ifneq ($(PROTOCOL),TCPIP)
+	@echo "$(PROTOCOL) 并不是一个有效值"
+	@echo "你可以参照上面提示输入正确参数\n"
+	@exit 1
+endif
+endif
 	@echo "\n"
 	@mkdir -p obj
 	@rm -f BC.out RT.out ./obj/*.o ./*.o

@@ -3,7 +3,7 @@
 #include "m_type.h"
 #include "event.h"
 #include "event_type.h"
-#define REPOS_MAX_LEN 20
+#define REPOS_MAX_LEN 2
 void init_event_repos_array(void);
 void get_one_event_repos(UINT* pos);
 bool get_one_event(void* p_repos,void* p_evt_node);

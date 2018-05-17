@@ -21,6 +21,8 @@
 #include<fsu_pthread.h>
 #endif
 #include "BC_control.h"
+#include "sync_collect.h"
+#include "interval.h"
 
 static unsigned char read_buf_1553[READ_BUF_1553_MAX_SIZE][BUF_MAX_LEN]={0};
 static unsigned int read_buf_1553_size[READ_BUF_1553_MAX_SIZE]={0};
@@ -34,21 +36,17 @@ static bool is_read_buf_1553_avail[READ_BUF_1553_MAX_SIZE][RT_MAX_NUM]={0};
 
 void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){  
 
+    void *p_sync=get_sync_collect(HASH_CONTROL_PACKAGE_SCAN_FLAG,config_id,RT_config_id,NULL);
 #ifdef __TCPIP_TRANSMIT
-
-    sleep(1);
+    sleep_ms(1000);
     int    sockfd, n,rec_len;  
     struct sockaddr_in    servaddr;
     void* p_config_node_tmp=get_config_node(config_id);
     UINT traffic_repos_id=get_config_node_traffic_repos_id(p_config_node_tmp);
     while(1){
     //需要加同步锁模块，节省cpu资源
-#ifdef __GCC_C99
-    usleep(20000);
-#elif __SPARC_GCC_MMU
-    sleep(1);
-#endif
-    if(!get_buffer_is_avail(config_id,RT_config_id))continue;
+    //if(!get_buffer_is_avail(config_id,RT_config_id))continue;
+    vi_wait(p_sync);
     if( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){  
     printf("create socket error: %s(errno: %d)\n", strerror(errno),errno);  
     exit(0);  
@@ -60,14 +58,19 @@ void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){
     printf("bus--connect error: %s(errno: %d)\n",strerror(errno),errno);  
     exit(0);  
     }
-    if(get_buffer_is_avail(config_id,RT_config_id)){
-        set_buffer_unavail(config_id,RT_config_id);
-            if(send(sockfd,read_buf_1553[config_id],read_buf_1553_size[config_id],0) == -1)  
-                perror("send error");
-            //printf("已经发送%d的数据\n",read_buf_1553_size[config_id]);
-            read_buf_1553_size[config_id]=0;
-            memset(read_buf_1553[config_id],0,BUF_MAX_LEN);
-    }
+    //if(get_buffer_is_avail(config_id,RT_config_id)){
+    //    set_buffer_unavail(config_id,RT_config_id);
+    //        if(send(sockfd,read_buf_1553[config_id],read_buf_1553_size[config_id],0) == -1)  
+    //            perror("send error");
+    //        //printf("已经发送%d的数据\n",read_buf_1553_size[config_id]);
+    //        read_buf_1553_size[config_id]=0;
+    //        memset(read_buf_1553[config_id],0,BUF_MAX_LEN);
+    //}
+    if(send(sockfd,read_buf_1553[config_id],read_buf_1553_size[config_id],0) == -1)  
+            perror("send error");
+    read_buf_1553_size[config_id]=0;
+    memset(read_buf_1553[config_id],0,BUF_MAX_LEN);
+
     close(sockfd);  
     }
     close(sockfd);  
@@ -76,19 +79,21 @@ void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){
 #elif __VCAN_TRANSMIT
 
     while(1){
-#ifdef __GCC_C99
-        usleep(20000);
-#elif __SPARC_GCC_MMU
-        sleep(1);
-#endif
-        if(get_buffer_is_avail(config_id,RT_config_id)){
-            set_buffer_unavail(config_id,RT_config_id);
-            if(vcan_send_package(read_buf_1553[config_id],read_buf_1553_size[config_id])==-1){
+        vi_wait(p_sync);
+        if(vcan_send_package(read_buf_1553[config_id],read_buf_1553_size[config_id])==-1){
                 printf("send data error\n");
         }
         memset(read_buf_1553[config_id],0,read_buf_1553_size[config_id]);
         read_buf_1553_size[config_id]=0;
-        }
+        
+        //if(get_buffer_is_avail(config_id,RT_config_id)){
+        //    set_buffer_unavail(config_id,RT_config_id);
+        //    if(vcan_send_package(read_buf_1553[config_id],read_buf_1553_size[config_id])==-1){
+        //        printf("send data error\n");
+        //}
+        //memset(read_buf_1553[config_id],0,read_buf_1553_size[config_id]);
+        //read_buf_1553_size[config_id]=0;
+        //}
     }
 
 #endif
@@ -139,7 +144,6 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
             //printf("----%d %d\n",recv_buffer[0],recv_buffer[1]);
             if(send_port_array_flag==false&&recv_buffer[1]==0x0&&recv_buffer[2]==0xff){
                 //发送端口列表给RT
-                //printf("ttt\n");
                 memset(recv_buffer,0,4096);
                 UINT port_len=get_RT_sub_addr_array(port,(UINT *)(recv_buffer+8));
                 *(UINT *)(recv_buffer+4)=port_len;
@@ -167,7 +171,6 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
         vcan_receive_package(recv_buffer,4096,&recv_len);  
         recv_buffer[recv_len] = '\0';
         if(recv_len!=0){
-           //printf("len:%d %x %x %x\n",recv_len,recv_buffer[0],recv_buffer[1],recv_buffer[2]);
             if(send_port_array_flag==false&&recv_buffer[0]==0x0&&recv_buffer[1]==0xff){
                 memset(recv_buffer,0,4096);
                 UINT port_len=get_RT_sub_addr_array(port,(UINT *)(recv_buffer+4));
@@ -198,18 +201,15 @@ void* scan_1553_RT_section_pthread_func(void* p_scan_config){
     void* p_config_node_tmp=get_config_node(config_id);
     UINT repos_pos_tmp=get_config_node_traffic_repos_id(p_config_node_tmp);
     UINT light_pos_tmp;
+    void *p_sync=get_sync_collect(HASH_CONTROL_PACKAGE_SCAN_FLAG,config_id,light_pos_tmp,NULL);
     while(true){
         ctrl_pack_package_to_1553(repos_pos_tmp,buffer,&read_buf_1553_size[config_id],&light_pos_tmp);
-        
         if(read_buf_1553_size[config_id]!=0){
             //light_pos 即为 RT_config_id
-            set_buffer_avail(config_id,light_pos_tmp);
+            //set_buffer_avail(config_id,light_pos_tmp);//死等
+            vi_signal(p_sync);
         }
-#ifdef __GCC_C99
-        usleep(30000);
-#elif __SPARC_GCC_MMU
-        sleep(1);
-#endif
+    sleep_ms(30);
     }
 }
 
