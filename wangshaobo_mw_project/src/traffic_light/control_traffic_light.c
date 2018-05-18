@@ -142,13 +142,10 @@ bool traffic_repos_scan_func(UINT traffic_repos_id){
                             p_light_tmp->traffic_status=UNCHECKED;
                         }
                         if(!is_write_region_empty(bus_type,bus_lid,RT_lid,dev_lid)){
-                            //printf("%s有数据\n",dev_lid);
                             p_light_tmp->is_back=BACK;
                             void *p=get_sync_collect(HASH_CONTROL_APP_READ_FLAG,0,0,dev_lid);
                             FLAG flag=get_sync_collect_flag(p,false);
-                            //printf("scan-dev_lid:%s 3flag:%d\n",dev_lid,flag);
                             if(flag==FLAG2){                    //FLAG2阻塞 FLAG1正常
-                                //write_sync_collect_flag(p,FLAG1);
                                 vi_signal(p);
                             }
                         }

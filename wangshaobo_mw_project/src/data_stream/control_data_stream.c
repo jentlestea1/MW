@@ -79,28 +79,20 @@ void read_data(char* dev_lid,unsigned char* buffer,UINT buffer_size,UINT* size,v
     FLAG flag=FLAG1;
     if(write_region_size==0){
         flag=get_sync_collect_flag(p,false);
-        //printf("dev_lid:%s flag:%d\n p:0x%x",dev_lid,flag,p);
         if(flag==FLAG1){
-            //printf("dev_lid:%s 我执行了\n",dev_lid);
             write_sync_collect_flag(p,FLAG2,false);   //FLAG1正常，FLAG2阻塞
             flag=get_sync_collect_flag(p,false);
-            //printf("1dev_lid:%s 执行后flag:%d\n",dev_lid,flag);
             vi_wait(p);
             write_sync_collect_flag(p,FLAG1,false);
             flag=get_sync_collect_flag(p,false);
-            //printf("2dev_lid:%s 执行后flag:%d\n",dev_lid,flag);
         }
         else {
             printf("dev_lid:%s 上次更改flag有误\n",dev_lid);
         }
     }
-    //if(flag==FLAG2){
-    //}
-    //printf("dev_lid:%s bus_type:%s bus_lid:%s RT_lid:%s\n",dev_lid,bus_type,bus_lid,RT_lid);
     UINT read_block_size=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,SEND_BLOCK_FLAG);
     if(read_block_size>buffer_size){
         *size=0;
-        //printf("read_block_size:%d buffer_size:%d",read_block_size,buffer_size);
         throw_event(0,RT_lid,EVT_APP_READ_BLOCK_OVERFLOW);
         return;//抛出事件
     }
