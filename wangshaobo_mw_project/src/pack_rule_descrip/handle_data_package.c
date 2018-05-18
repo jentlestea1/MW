@@ -7,13 +7,13 @@
 #include "handle_event.h"
 
 //static data_trans_rule_form form[DATA_TRANS_RULE_FORM_MAX_LEN];
-static data_trans_rule_form *form;
+static data_trans_rule_form *form=NULL;
 //以下相当于字典映射
-static char direct_trans_dev_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
-static char irdirect_trans_dev_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
-static char irdirect_trans_bus_type[TRANS_DEV_MAX_SIZE][ATTR_TYPE_VALUE_MAX_LEN];
-static char irdirect_trans_bus_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
-static char irdirect_trans_RT_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
+static char direct_trans_dev_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN]={{0}};
+static char irdirect_trans_dev_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN]={{0}};
+static char irdirect_trans_bus_type[TRANS_DEV_MAX_SIZE][ATTR_TYPE_VALUE_MAX_LEN]={{0}};
+static char irdirect_trans_bus_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN]={{0}};
+static char irdirect_trans_RT_lid[TRANS_DEV_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN]={{0}};
 static UINT RT_trans_rule_pos=0;
 static UINT data_trans_rule_form_num=0;
 static UINT direct_trans_dev_num=0;
@@ -59,8 +59,14 @@ void create_data_trans_rule_form(void){
         }
         else if(io_p!=NULL){//form未被创建
             /*需要新建表*/
-
-            form=(data_trans_rule_form*)realloc(form,sizeof(data_trans_rule_form)*(data_trans_rule_form_num+1));
+            if(form==NULL){
+                form=(data_trans_rule_form*)calloc(1,sizeof(data_trans_rule_form));
+                if(form==NULL)return;
+            }
+            else{
+                form=(data_trans_rule_form*)realloc(form,sizeof(data_trans_rule_form)\
+                        *(data_trans_rule_form_num+1));
+            }
 
             void* next_io_p=get_io_next_item(io_p);
             char* bus_lid=get_io_lid(next_io_p);
@@ -253,6 +259,7 @@ UINT get_form_info_dev_receive_block_size(void* info_item){
 }
 
 char* get_form_info_dev_RT_subAddr(void* info_item){
+    if(info_item==NULL)return "";
     return ((dev_trans_data_info*)info_item)->RT_subAddr;
 }
 

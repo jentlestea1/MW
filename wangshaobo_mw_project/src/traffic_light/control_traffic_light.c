@@ -101,7 +101,7 @@ bool traffic_repos_scan_func(UINT traffic_repos_id){
             for(;i<p_repos_tmp->list_len;i++){
                 int j=0;
                 traffic_light* p_light_tmp=p_repos_tmp->p_traffic_light_list[i];
-                void* p_route_node=get_route_node();
+                route r;
                 for(;j<p_repos_tmp->dev_num[i];j++){
                         if(p_light_tmp->is_loaded==LOADED){
                             ret=true;
@@ -117,10 +117,10 @@ bool traffic_repos_scan_func(UINT traffic_repos_id){
                             }
                         }
                         char* dev_lid=p_light_tmp->dev_lid;
-                        get_dev_route_map(dev_lid,&p_route_node);
-                        char* bus_type=get_route_bus_type(p_route_node);
-                        char* bus_lid=get_route_bus_lid(p_route_node);
-                        char* RT_lid=get_route_RT_lid(p_route_node);
+                        get_dev_route_map(dev_lid,&r);
+                        char* bus_type=get_route_bus_type(r);
+                        char* bus_lid=get_route_bus_lid(r);
+                        char* RT_lid=get_route_RT_lid(r);
                         UINT dev_read_block_size_tmp=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,RECEIVE_BLOCK_FLAG);
                         UINT dev_read_buffer_size;
                         if(!is_read_region_empty(bus_type,bus_lid,RT_lid,dev_lid)){
@@ -142,11 +142,13 @@ bool traffic_repos_scan_func(UINT traffic_repos_id){
                             p_light_tmp->traffic_status=UNCHECKED;
                         }
                         if(!is_write_region_empty(bus_type,bus_lid,RT_lid,dev_lid)){
+                            //printf("%s有数据\n",dev_lid);
                             p_light_tmp->is_back=BACK;
                             void *p=get_sync_collect(HASH_CONTROL_APP_READ_FLAG,0,0,dev_lid);
-                            FLAG flag=get_sync_collect_flag(p);
+                            FLAG flag=get_sync_collect_flag(p,false);
+                            //printf("scan-dev_lid:%s 3flag:%d\n",dev_lid,flag);
                             if(flag==FLAG2){                    //FLAG2阻塞 FLAG1正常
-                                write_sync_collect_flag(p,FLAG1);
+                                //write_sync_collect_flag(p,FLAG1);
                                 vi_signal(p);
                             }
                         }
@@ -155,7 +157,6 @@ bool traffic_repos_scan_func(UINT traffic_repos_id){
                         }
                         p_light_tmp++;
                 }
-                free_route_node(&p_route_node);
             }
         }
         return ret;

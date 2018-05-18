@@ -200,17 +200,21 @@ void* scan_1553_RT_section_pthread_func(void* p_scan_config){
     //实现一个扫描算法
     scan_config* p_scan_config_tmp=(scan_config*)p_scan_config;
     UINT config_id=p_scan_config_tmp->config_id;
+    int light_pos_tmp=-1;
     unsigned char* buffer=read_buf_1553[config_id];
     void* p_config_node_tmp=get_config_node(config_id);
     UINT repos_pos_tmp=get_config_node_traffic_repos_id(p_config_node_tmp);
-    UINT light_pos_tmp;
-    void *p_sync=get_sync_collect(HASH_CONTROL_PACKAGE_SCAN_FLAG,config_id,light_pos_tmp,NULL);
     while(true){
-        ctrl_pack_package_to_1553(repos_pos_tmp,buffer,&read_buf_1553_size[config_id],&light_pos_tmp);
-        if(read_buf_1553_size[config_id]!=0){
-            //light_pos 即为 RT_config_id
-            //set_buffer_avail(config_id,light_pos_tmp);//死等
-            vi_signal(p_sync);
+        ctrl_pack_package_to_1553(repos_pos_tmp,buffer,\
+                    &read_buf_1553_size[config_id],&light_pos_tmp);
+        if(light_pos_tmp!=-1){
+            void *p_sync=get_sync_collect(HASH_CONTROL_PACKAGE_SCAN_FLAG,\
+                    config_id,light_pos_tmp,NULL);
+            if(read_buf_1553_size[config_id]!=0){
+                //light_pos 即为 RT_config_id
+                //set_buffer_avail(config_id,light_pos_tmp);//死等
+                vi_signal(p_sync);
+            }
         }
     sleep_ms(30);
     }
@@ -344,7 +348,9 @@ void initialize_communicate(){
         }
         close(socket_fd);  
     }
+    else {
         close(socket_fd);  
+    }
 #endif
 }
 

@@ -26,8 +26,5 @@ HASHKEY get_hash_key(HASH_TYPE hash_type,UINT d1,UINT d2,char *s1);
 UINT Hash(HASH_TYPE hash_type,HASHKEY key);
 void insert_hash_node(UINT pos,HASHKEY key,void *p);
 void *get_hash_value(HASH_TYPE hash_type,UINT d1,UINT d2,char *s1);
-//#ifdef __SPARC_GCC_MMU
-//void dbgstart_sync_collections();
-//#endif
 #endif
 

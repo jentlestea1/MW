@@ -86,15 +86,14 @@ void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,ch
     }
     while(strcmp(dev_lid,"")!=0){
         block_size=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,RECEIVE_BLOCK_FLAG);
-        void* p_time_node=get_time_node();
-        ctrl_dev_read_data(traffic_repos_id,dev_lid,read_buffer,block_size,&size,p_time_node);
+        timeStamp t;
+        ctrl_dev_read_data(traffic_repos_id,dev_lid,read_buffer,block_size,&size,&t);
         int j=0;
         if(size!=0&&block_size!=size){//抛出异常,应用层应该以一个block的大小发送指令/数据
-            void* p_route=get_route_node();
-            get_dev_route_map(dev_lid,&p_route);
-            char* RT_lid=get_route_RT_lid(p_route);
+            route r;
+            get_dev_route_map(dev_lid,&r);
+            char* RT_lid=get_route_RT_lid(r);
             throw_event(0,RT_lid,EVT_APP_DATA_SIZE_ERR);
-            free_route_node(&p_route);
         }
         if(size==0){
             *(buffer_tmp+buffer_pos)|=DATA_BLOCK_VALID_PREFIX;
@@ -112,7 +111,6 @@ void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,ch
         }
         dev_lid=get_priority_deterio_dev_lid(bus_type,bus_lid,RT_lid,RECEIVE_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
         prev_priority=cur_prio;
-        free_time_node(&p_time_node);
     }
     if(is_send_valid==true){
 #ifdef __TCPIP_TRANSMIT

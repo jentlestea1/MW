@@ -5,8 +5,8 @@
 #include <string.h>
 #include "unistd.h"
 
-void get_current_time(void* time_stamp){
-    timeStamp* p_tmp=(timeStamp*)time_stamp;
+void get_current_time(timeStamp* time_stamp){
+    timeStamp* p_tmp=time_stamp;
     time_t t;
     struct tm* lt;
     time(&t);
@@ -20,9 +20,9 @@ void get_current_time(void* time_stamp){
 
 }
 
-void print_time(void* time_stamp){
+void print_time(timeStamp* time_stamp){
     if(time_stamp==NULL)return;
-    timeStamp* p_t=(timeStamp*)time_stamp;
+    timeStamp* p_t=time_stamp;
     printf("时间戳：%d/%d/%d\n",p_t->hour,p_t->minute,p_t->second);
 }
 
@@ -81,21 +81,21 @@ void clear_data_node_array(void* p_data_node_array,UINT array_size){
     memset(p_data_node_array,0,array_size*sizeof(dataNode));
 }
 
-void* get_time_node(void){
-    void* p_time_node=(void*)(timeStamp*)malloc(sizeof(timeStamp));
-    return p_time_node;
-}
-
-void free_time_node(void** pp_time_node){
-    free(*pp_time_node);
-    (*pp_time_node)==NULL;
-}
-
-void delay(UINT m_s){
-    UINT i=0;
-    UINT j=0;
-    for(;i<m_s*100000;i++){
-        j++;
-    }
-}
+//void* get_time_node(void){
+//    void* p_time_node=(void*)(timeStamp*)malloc(sizeof(timeStamp));
+//    return p_time_node;
+//}
+//
+//void free_time_node(void** pp_time_node){
+//    free(*pp_time_node);
+//    (*pp_time_node)==NULL;
+//}
+//
+//void delay(UINT m_s){
+//    UINT i=0;
+//    UINT j=0;
+//    for(;i<m_s*100000;i++){
+//        j++;
+//    }
+//}
 

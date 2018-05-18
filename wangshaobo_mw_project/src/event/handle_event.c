@@ -63,10 +63,9 @@ void handle_event(void* p_event){
     else{
         char* sel_RT_lid_tmp=((evt*)p_event)->sel_RT_lid;
         if(sel_RT_lid_tmp!=NULL){
-            void* p_route_tmp=get_route_node();
-            get_RT_route_map(sel_RT_lid_tmp,&p_route_tmp);
-            printf("route:%s %s %s   event_type:%d\n",get_route_bus_type(p_route_tmp),get_route_bus_lid(p_route_tmp),get_route_RT_lid(p_route_tmp),((evt*)p_event)->event_type);
-            free_route_node(&p_route_tmp);
+            route r;
+            get_RT_route_map(sel_RT_lid_tmp,&r);
+            printf("route:%s %s %s   event_type:%d\n",get_route_bus_type(r),get_route_bus_lid(r),get_route_RT_lid(r),((evt*)p_event)->event_type);
         }
         else{
             printf("route:null null null   event_type:%d\n",((evt*)p_event)->event_type);

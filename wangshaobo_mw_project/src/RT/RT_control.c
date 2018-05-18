@@ -215,10 +215,9 @@ void RT_handle_package(UCHAR *buffer,UINT n){
                 }
                 printf("位置：RT；类型：->接收；数据：%lf；大小：%d；端口：%d    ",d,size,child_port);
                 add_string(RECEIVE,d,child_port);
-                void* p_time=get_time_node();
-                get_current_time(p_time);
-                print_time(p_time);
-                free_time_node(&p_time);
+                timeStamp t;
+                get_current_time(&t);
+                print_time(&t);
                 memset(send_buffer,0,4096);
             }
             if(pos!=n){

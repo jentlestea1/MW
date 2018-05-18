@@ -48,14 +48,14 @@ void ctrl_dev_write_data(UINT traffic_repos_id,char* dev_lid,unsigned char* buff
 
 void ctrl_dev_read_data(UINT traffic_repos_id,char* dev_lid,unsigned char* buffer,UINT read_size,UINT* size,void* time){
     UINT light_pos=get_dev_light_pos(traffic_repos_id,dev_lid);
-    void* p_route=get_route_node();
-    get_dev_route_map(dev_lid,&p_route);
+    route r;
+    get_dev_route_map(dev_lid,&r);
     if(is_red_light(traffic_repos_id,light_pos,dev_lid)){
         dev_read_data_func(dev_lid,buffer,read_size,size,time);//红灯读出丢弃数据,抛出事件
         memset(buffer,0,read_size);
         if(*size==0){
             //抛出事件
-            char* RT_lid=get_route_RT_lid(p_route);
+            char* RT_lid=get_route_RT_lid(r);
             throw_event(0,RT_lid,EVT_1553_RECV_COMMAND_ERR);
             return;
         }
@@ -64,26 +64,38 @@ void ctrl_dev_read_data(UINT traffic_repos_id,char* dev_lid,unsigned char* buffe
     }
     dev_read_data_func(dev_lid,buffer,read_size,size,time);
     if(*size==0)return;
-    free_route_node(&p_route);
 }
 
 
 /*读写都为读写block_size*/
 void read_data(char* dev_lid,unsigned char* buffer,UINT buffer_size,UINT* size,void* time,AUTO_SET auto_set,UINT set_size){
-    void* p_route_tmp=get_route_node();
-    get_dev_route_map(dev_lid,&p_route_tmp);
-    char* bus_type=((route*)p_route_tmp)->bus_type;
-    char* bus_lid=((route*)p_route_tmp)->bus_lid;
-    char* RT_lid=((route*)p_route_tmp)->RT_lid;
+    route r;
+    get_dev_route_map(dev_lid,&r);
+    char* bus_type=get_route_bus_type(r);
+    char* bus_lid=get_route_bus_lid(r);
+    char* RT_lid=get_route_RT_lid(r);
     UINT write_region_size=get_write_region_size(bus_type,bus_lid,RT_lid,dev_lid);
+    void *p=get_sync_collect(HASH_CONTROL_APP_READ_FLAG,0,0,dev_lid);
+    FLAG flag=FLAG1;
     if(write_region_size==0){
-        void *p=get_sync_collect(HASH_CONTROL_APP_READ_FLAG,0,0,dev_lid);
-        FLAG flag=get_sync_collect_flag(p);
+        flag=get_sync_collect_flag(p,false);
+        //printf("dev_lid:%s flag:%d\n p:0x%x",dev_lid,flag,p);
         if(flag==FLAG1){
-            write_sync_collect_flag(p,FLAG2);   //FLAG1正常，FLAG2阻塞
+            //printf("dev_lid:%s 我执行了\n",dev_lid);
+            write_sync_collect_flag(p,FLAG2,false);   //FLAG1正常，FLAG2阻塞
+            flag=get_sync_collect_flag(p,false);
+            //printf("1dev_lid:%s 执行后flag:%d\n",dev_lid,flag);
             vi_wait(p);
+            write_sync_collect_flag(p,FLAG1,false);
+            flag=get_sync_collect_flag(p,false);
+            //printf("2dev_lid:%s 执行后flag:%d\n",dev_lid,flag);
+        }
+        else {
+            printf("dev_lid:%s 上次更改flag有误\n",dev_lid);
         }
     }
+    //if(flag==FLAG2){
+    //}
     //printf("dev_lid:%s bus_type:%s bus_lid:%s RT_lid:%s\n",dev_lid,bus_type,bus_lid,RT_lid);
     UINT read_block_size=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,SEND_BLOCK_FLAG);
     if(read_block_size>buffer_size){
@@ -107,16 +119,15 @@ void read_data(char* dev_lid,unsigned char* buffer,UINT buffer_size,UINT* size,v
     void* p_config_node=get_config_node(config_id);
     UINT traffic_repos_id=get_config_node_traffic_repos_id(p_config_node);
     ctrl_app_read_data(traffic_repos_id,dev_lid,buffer,read_block_size,size,time);
-    free_route_node(&p_route_tmp);
 }
 
 
 void write_data(char* dev_lid,unsigned char* buffer,UINT buffer_size,UINT* size){
-    void* p_route_tmp=get_route_node();
-    get_dev_route_map(dev_lid,&p_route_tmp);
-    char* bus_type=((route*)p_route_tmp)->bus_type;
-    char* bus_lid=((route*)p_route_tmp)->bus_lid;
-    char* RT_lid=((route*)p_route_tmp)->RT_lid;
+    route r;
+    get_dev_route_map(dev_lid,&r);
+    char* bus_type=get_route_bus_type(r);
+    char* bus_lid=get_route_bus_lid(r);
+    char* RT_lid=get_route_RT_lid(r);
     UINT send_block_size=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,RECEIVE_BLOCK_FLAG);
     if(send_block_size>buffer_size){
         //printf("send_blocksize:%d buffer_size:%d\n",send_block_size,buffer_size);
@@ -132,7 +143,6 @@ void write_data(char* dev_lid,unsigned char* buffer,UINT buffer_size,UINT* size)
     void* p_config_node=get_config_node(config_id);
     UINT traffic_repos_id=get_config_node_traffic_repos_id(p_config_node);
     ctrl_app_write_data(traffic_repos_id,dev_lid,buffer,send_block_size,size);
-    free_route_node(&p_route_tmp);
 
 }
 

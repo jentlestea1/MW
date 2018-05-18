@@ -56,20 +56,20 @@ void* app_read_pthread_func_f(void* argc){
     double sum;
     double d1;
     double d2;
+    timeStamp t;
     //UINT t=1;
     while(true){
         memset(read_buf,0,200);
-        void* p_time_r=get_time_node();
         while(true){
-            vi_app_read_data("001",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            sleep_ms(10);
+            vi_app_read_data("001",read_buf,200,&read_size,&t,AUTO,-1);
+            //sleep_ms(10);
             if(read_size!=0)break;
         }
         str_to_double(&d1,read_buf);
         memset(read_buf,0,200);
         while(true){
-            vi_app_read_data("002",read_buf,200,&read_size,p_time_r,AUTO,-1);
-        sleep_ms(10);
+            vi_app_read_data("002",read_buf,200,&read_size,&t,AUTO,-1);
+            //sleep_ms(10);
             if(read_size!=0)break;
         }
         str_to_double(&d2,read_buf);
@@ -84,7 +84,6 @@ void* app_read_pthread_func_f(void* argc){
         vi_app_write_data("003",write_buf,200,&write_size);
         if(write_size==0)printf("写错误\n");
         printf("位置：APP；类型：发送；数据：%lf；大小：%d；端口：%d\n",sum,write_size,8003);
-        free_time_node(&p_time_r);
     }
 }
 
@@ -97,13 +96,13 @@ void* app_read_pthread_func_s(void* argc){
     UINT read_size;
     UINT write_size;
     UINT sum;
+    timeStamp t;
     //UINT t=1;
     while(true){
         memset(read_buf,0,200);
-        void* p_time_r=get_time_node();
         while(true){
-            vi_app_read_data("004",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            sleep_ms(10);
+            vi_app_read_data("004",read_buf,200,&read_size,&t,AUTO,-1);
+            //sleep_ms(10);
             if(read_size!=0)break;
         }
         sum=read_buf[0]+1;
@@ -113,7 +112,6 @@ void* app_read_pthread_func_s(void* argc){
         if(write_size==0)printf("写错误\n");
         printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8004);
         //printf("2-%d-\n",t++);
-        free_time_node(&p_time_r);
     }
 }
 
@@ -126,27 +124,27 @@ void* app_read_pthread_func_t(void* argc){
     UINT read_size;
     UINT write_size;
     UINT sum;
+    timeStamp t;
     //UINT t=1;
     while(true){
         memset(read_buf,0,200);
-        void* p_time_r=get_time_node();
         while(true){
-            vi_app_read_data("005",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            sleep_ms(10);
+            vi_app_read_data("005",read_buf,200,&read_size,&t,AUTO,-1);
+            //sleep_ms(10);
             if(read_size!=0)break;
         }
         sum=read_buf[0];
         memset(read_buf,0,200);
         while(true){
-            vi_app_read_data("006",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            sleep_ms(10);
+            vi_app_read_data("006",read_buf,200,&read_size,&t,AUTO,-1);
+            //sleep_ms(10);
             if(read_size!=0)break;
         }
         sum+=read_buf[0];
         memset(read_buf,0,200);
         while(true){
-            vi_app_read_data("007",read_buf,200,&read_size,p_time_r,AUTO,-1);
-            sleep_ms(10);
+            vi_app_read_data("007",read_buf,200,&read_size,&t,AUTO,-1);
+            //sleep_ms(10);
             if(read_size!=0)break;
         }
         sum+=read_buf[0];
@@ -159,7 +157,6 @@ void* app_read_pthread_func_t(void* argc){
         printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8007);
         printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8008);
         //printf("3-%d-\n",t++);
-        free_time_node(&p_time_r);
     }
     
 }

@@ -187,7 +187,8 @@ void parseXml(){
         }
     }
     DeviceListLen=DeviceListPos;
-    DeviceListPos=0; //初始化DeviceList入口为第一个deviceNode
+    DeviceListPos=0; //初始化DeviceList入口为第一个DeviceNode
+    mxmlDelete(root);
     printf("生成配置文件解析存储结构完成...\n");
 }
 

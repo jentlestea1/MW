@@ -23,21 +23,20 @@ UINT get_RT_sub_addr_array(UINT port,UINT *buf){
     void* p_confgi_node=get_config_node(config_1553_id);
     UINT pos=get_config_light_pos(config_1553_id,port);
     char* RT_lid=get_config_node_RT_lid(p_confgi_node,pos);
-    void* p_route=get_route_node();
-    get_RT_route_map(RT_lid,&p_route);
+    route r;
+    get_RT_route_map(RT_lid,&r);
     UINT cur_prio=0;
     UINT prev_priority=MAX_PRIORITY; 
     UINT anchor=0;
     UINT child_port;
-    char* dev_lid=get_priority_deterio_dev_lid(get_route_bus_type(p_route),get_route_bus_lid(p_route),get_route_RT_lid(p_route),SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
+    char* dev_lid=get_priority_deterio_dev_lid(get_route_bus_type(r),get_route_bus_lid(r),get_route_RT_lid(r),SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
     prev_priority=cur_prio;
     while(strcmp(dev_lid,"")!=0){
-        child_port=get_RT_physical_sub_addr(get_route_bus_type(p_route),get_route_bus_lid(p_route),get_route_RT_lid(p_route),dev_lid);
+        child_port=get_RT_physical_sub_addr(get_route_bus_type(r),get_route_bus_lid(r),get_route_RT_lid(r),dev_lid);
         buf[len++]=child_port;
-        dev_lid=get_priority_deterio_dev_lid(get_route_bus_type(p_route),get_route_bus_lid(p_route),get_route_RT_lid(p_route),SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
+        dev_lid=get_priority_deterio_dev_lid(get_route_bus_type(r),get_route_bus_lid(r),get_route_RT_lid(r),SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
         prev_priority=cur_prio;
     }
-    free_route_node(&p_route);
     int i=0;
     for(;i<len;i++){
         printf("port:%d ",buf[i]);
