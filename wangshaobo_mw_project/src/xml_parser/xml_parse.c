@@ -34,9 +34,9 @@ static UINT RT_trans_device_r_p_pos=0;
 static UINT RT_trans_device_r_b_pos=0;
 static char interface[INTERFACE_MAX_LEN];
 
+mxml_node_t* root=NULL;
 void parseXml(){
     printf("正在生成配置文件存储结构...\n");
-    mxml_node_t* root;
 
 #ifdef __GCC_C99
     FILE* fp=fopen("dev_new.xml","r");
@@ -188,7 +188,6 @@ void parseXml(){
     }
     DeviceListLen=DeviceListPos;
     DeviceListPos=0; //初始化DeviceList入口为第一个DeviceNode
-    mxmlDelete(root);
     printf("生成配置文件解析存储结构完成...\n");
 }
 
@@ -608,4 +607,5 @@ void free_device_list(){
         DeviceList[i]=NULL;
     }
     DeviceListLen=0;
+    mxmlDelete(root);
 }

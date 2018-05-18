@@ -60,7 +60,7 @@ void create_data_trans_rule_form(void){
         else if(io_p!=NULL){//form未被创建
             /*需要新建表*/
             if(form==NULL){
-                form=(data_trans_rule_form*)calloc(1,sizeof(data_trans_rule_form));
+                form=(data_trans_rule_form*)malloc(sizeof(data_trans_rule_form));
                 if(form==NULL)return;
             }
             else{
@@ -160,7 +160,7 @@ void create_data_trans_rule_form(void){
     printf("创建包转发规则表结束...\n");
     
     //释放中间结构
-    //free_device_list();
+    free_device_list();
 }
 
 /*
