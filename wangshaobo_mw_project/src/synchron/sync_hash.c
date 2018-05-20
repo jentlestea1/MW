@@ -1,4 +1,4 @@
-#include "semaphore_hash.h"
+#include "sync_hash.h"
 #include "m_type.h"
 #include "stdlib.h"
 #include "stdio.h"

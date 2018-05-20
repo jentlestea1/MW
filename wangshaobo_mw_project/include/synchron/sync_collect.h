@@ -1,7 +1,7 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 #include "compile_type.h"
-#include "semaphore_hash.h"
+#include "sync_hash.h"
 #include "m_type.h"
 #ifdef __SPARC_GCC_MMU
 #include <fsu_pthread.h>
