@@ -19,7 +19,7 @@
 #define DESCRIPTION_ITEM_MAX_LEN 20
 #define TAG_NAME_MAX_LEN 30
 
-static DeviceNode* DeviceList[DEVICE_LIST_MAX_LEN];
+static DeviceNode* DeviceList[DEVICE_LIST_MAX_LEN]={NULL};
 static UINT DeviceListLen=0;         
 static UINT DeviceListPos=0;         
 static UINT DescripEntryPos=0;
@@ -32,7 +32,7 @@ static UINT RT_trans_device_s_p_pos=0;
 static UINT RT_trans_device_s_b_pos=0;
 static UINT RT_trans_device_r_p_pos=0;
 static UINT RT_trans_device_r_b_pos=0;
-static char interface[INTERFACE_MAX_LEN];
+static char interface[INTERFACE_MAX_LEN]={0};
 
 mxml_node_t* root=NULL;
 void parseXml(){
@@ -339,7 +339,6 @@ void printList(){
             printf("io lid:%s\n",io_tmp->descrip.lid);
             if(strcmp(io_tmp->descrip.type,"RT")==0){
                 //RT_trans
-                //printf("_____tran data_____\n");
                 int k=0;
                 for(k=0;k<io_tmp->descrip.io_attrs.RTTrans.len;k++){
                     printf("_____addr_map_____\n");

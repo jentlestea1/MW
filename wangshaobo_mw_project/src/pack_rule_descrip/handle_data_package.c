@@ -61,11 +61,13 @@ void create_data_trans_rule_form(void){
             /*需要新建表*/
             if(form==NULL){
                 form=(data_trans_rule_form*)malloc(sizeof(data_trans_rule_form));
+                memset(form,0,sizeof(data_trans_rule_form));
                 if(form==NULL)return;
             }
             else{
                 form=(data_trans_rule_form*)realloc(form,sizeof(data_trans_rule_form)\
                         *(data_trans_rule_form_num+1));
+                memset(form+sizeof(data_trans_rule_form),0,sizeof(data_trans_rule_form));
             }
 
             void* next_io_p=get_io_next_item(io_p);
@@ -78,10 +80,14 @@ void create_data_trans_rule_form(void){
             UINT rule_len=form[data_trans_rule_form_num].rule_section_len;
             form[data_trans_rule_form_num].rule_section=(RT_trans_rule*)realloc(form[data_trans_rule_form_num].rule_section\
                     ,(rule_len+1)*sizeof(RT_trans_rule));
+            memset(form[data_trans_rule_form_num].rule_section+rule_len*sizeof(RT_trans_rule),\
+                    0,sizeof(RT_trans_rule));
             form[data_trans_rule_form_num].rule_section[rule_len].info_section_len=0;
             UINT info_len=form[data_trans_rule_form_num].rule_section[rule_len].info_section_len;
             form[data_trans_rule_form_num].rule_section[rule_len].info_section=(dev_trans_data_info*)realloc\
                     (form[data_trans_rule_form_num].rule_section[rule_len].info_section,(info_len+1)*sizeof(dev_trans_data_info));
+            memset(form[data_trans_rule_form_num].rule_section[rule_len].info_section+info_len*\
+                    sizeof(dev_trans_data_info),0,sizeof(dev_trans_data_info));
             strcpy(form[data_trans_rule_form_num].rule_section[rule_len].RT_lid,get_io_lid(io_p));
             char* dev_lid_tmp=get_device_item_lid(dev_p);
             char* dev_map_subAddr_tmp=get_RT_trans_device_map_subAddr(dev_lid_tmp,io_p);
@@ -124,6 +130,8 @@ void create_data_trans_rule_form(void){
                         //创建新的rule_len
                         form[data_trans_rule_form_num].rule_section=(RT_trans_rule*)realloc(\
                                 form[data_trans_rule_form_num].rule_section,(rule_len+1)*sizeof(RT_trans_rule));
+                        memset(form[data_trans_rule_form_num].rule_section+rule_len*sizeof(RT_trans_rule),\
+                                0,sizeof(RT_trans_rule));
                         strcpy(form[data_trans_rule_form_num].rule_section[pos_tmp].RT_lid,get_io_lid(io_p_tmp));
                         form[data_trans_rule_form_num].rule_section[pos_tmp].info_section_len=0;
                         form[data_trans_rule_form_num].rule_section_len++;

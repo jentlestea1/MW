@@ -18,8 +18,6 @@ int main(){
 #ifdef __GCC_C99
 #elif __SPARC_GCC_MMU
     pthread_init();
-    //test_send();
-    //exit(0);
 #endif
     init_vi_dev_visit_sys();
     app_read();

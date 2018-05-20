@@ -97,7 +97,7 @@ void* evt_repos_scan_pthread_func(void* argc){
             if(is_true==true){
                 handle_event(p_evt_node);
             }
-            sleep_ms(1000);
+            sleep_ms(200);
             free(p_evt_node);
         }
     }
@@ -117,7 +117,6 @@ void throw_event(UINT repos_id,char* RT_lid,EVT_TYPE event_type){
     bool is_throw_succeed=false;
     void* p_repos_tmp=get_evt_repos(repos_id);
     if(p_repos_tmp==NULL)return;
-    printf("repos_id:%d RT_lid:%s\n",repos_id,RT_lid);
     is_throw_succeed=append_event_node(p_repos_tmp,RT_lid,event_type);
     if(is_throw_succeed==false){
         printf("throw event error\n");

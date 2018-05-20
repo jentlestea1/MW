@@ -2,6 +2,7 @@
 #ifdef __VCAN_TRANSMIT
 #include "m_type.h"
 #include "vcan_frame.h"
+#include "handle_event.h"
 
 
 int frame_type_detect(struct can_frame frame,UCHAR* w_buf,UINT *size,bool size_frame_mask){
@@ -43,7 +44,7 @@ struct can_frame serial_frame(int serial_type,UCHAR* r_buf,UINT size){
             return frame;
         else{
             if(r_buf==NULL){
-                printf("err,r_buf不能为NULL,非法序列化操作\n");
+                throw_event(0,NULL,EVT_INVALID_SERIAL_FRAME);
                 return frame;
             }
 
@@ -60,7 +61,7 @@ struct can_frame serial_frame(int serial_type,UCHAR* r_buf,UINT size){
         frame.can_dlc=8;
     }
     else{
-        printf("非法序列化操作\n");
+        throw_event(0,NULL,EVT_INVALID_SERIAL_FRAME);
     }
     return frame;
 }

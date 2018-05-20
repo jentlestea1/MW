@@ -20,8 +20,6 @@ void* app_write_pthread_func(void* argc){
         char write_buf[200]="wang ke wei,ni de jia zai na li?";
         char write_buf_s[200]="yu mei jie,ni xi huan chi shen me?";
         UINT write_size=0;
-        //printf("请输入dev_lid和数据(设备1和设备2都只能接受32个字节数据):\n");
-        //scanf("%s%s",dev_lid,write_buf);
         write_data("001",write_buf,200,&write_size);
         printf("\n-------写数据---------\n");
         printf("write_size:%d\n",write_size);
@@ -62,14 +60,12 @@ void* app_read_pthread_func_f(void* argc){
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("001",read_buf,200,&read_size,&t,AUTO,-1);
-            //sleep_ms(10);
             if(read_size!=0)break;
         }
         str_to_double(&d1,read_buf);
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("002",read_buf,200,&read_size,&t,AUTO,-1);
-            //sleep_ms(10);
             if(read_size!=0)break;
         }
         str_to_double(&d2,read_buf);
@@ -97,12 +93,10 @@ void* app_read_pthread_func_s(void* argc){
     UINT write_size;
     UINT sum;
     timeStamp t;
-    //UINT t=1;
     while(true){
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("004",read_buf,200,&read_size,&t,AUTO,-1);
-            //sleep_ms(10);
             if(read_size!=0)break;
         }
         sum=read_buf[0]+1;
@@ -111,7 +105,6 @@ void* app_read_pthread_func_s(void* argc){
         vi_app_write_data("004",write_buf,200,&write_size);
         if(write_size==0)printf("写错误\n");
         printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8004);
-        //printf("2-%d-\n",t++);
     }
 }
 
@@ -125,26 +118,22 @@ void* app_read_pthread_func_t(void* argc){
     UINT write_size;
     UINT sum;
     timeStamp t;
-    //UINT t=1;
     while(true){
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("005",read_buf,200,&read_size,&t,AUTO,-1);
-            //sleep_ms(10);
             if(read_size!=0)break;
         }
         sum=read_buf[0];
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("006",read_buf,200,&read_size,&t,AUTO,-1);
-            //sleep_ms(10);
             if(read_size!=0)break;
         }
         sum+=read_buf[0];
         memset(read_buf,0,200);
         while(true){
             vi_app_read_data("007",read_buf,200,&read_size,&t,AUTO,-1);
-            //sleep_ms(10);
             if(read_size!=0)break;
         }
         sum+=read_buf[0];
@@ -156,7 +145,6 @@ void* app_read_pthread_func_t(void* argc){
         if(write_size==0)printf("写错误\n");
         printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8007);
         printf("位置：APP；类型：发送；数据：%d；大小：%d；端口：%d\n",sum,write_size,8008);
-        //printf("3-%d-\n",t++);
     }
     
 }

@@ -59,6 +59,23 @@ int RT_send_frame(struct can_frame frame){
     return n;
 }
 
+int RT_send_package(unsigned char *buffer,UINT size){
+    struct can_frame frame;
+    frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,size);
+    RT_send_frame(frame);
+    sleep_ms(10);
+    UINT frame_size_tmp;
+    int i=0;
+    for(i=0;i<size;){
+	    frame_size_tmp = (size-i)>8?8:(size-i);
+        frame=serial_frame(VCAN_DATA_FRAME_FLAG,buffer+i,frame_size_tmp);
+        i+=frame_size_tmp;
+        RT_send_frame(frame);
+        sleep_ms(10);
+    }
+
+}
+
 UINT RT_receive_package(unsigned char *buffer){   //返回接收到的全帧大小,buffer大小满足情况
     int n;
     UINT pack_size;
@@ -71,7 +88,6 @@ UINT RT_receive_package(unsigned char *buffer){   //返回接收到的全帧大�
         n = read(s, &frame, sizeof(struct can_frame));
     }
     pack_size=size;
-    //printf("RT接收到大小帧size:%d\n",size);
     while(recv_bytes<pack_size){
         n = read(s, &frame, sizeof(struct can_frame));
         frame_type_detect(frame,buffer+recv_bytes,&size,true);
@@ -79,9 +95,6 @@ UINT RT_receive_package(unsigned char *buffer){   //返回接收到的全帧大�
     }
     if(recv_bytes>pack_size)
         throw_event(0,NULL,RT_EVT_RECV_PACKAGE_ERR);
-        //printf("我收到了过多的数据,实际收到数据:%d,应该收到数据%d\n",recv_bytes,pack_size);
-    //else if(recv_bytes==pack_size)
-    //    printf("RT收到正确的数据帧\n");
     return recv_bytes;
 }
 
@@ -97,7 +110,6 @@ void* create_RT_socket_server(void* RT_port){
 #ifdef __RT_TCPIP_TRANSMIT
     port_con* p_RT_port=(port_con*)RT_port;
     UINT port=p_RT_port->port;
-    UINT child_port;
     int     n; 
     int    socket_fd, connect_fd;  
     struct sockaddr_in     servaddr;  
@@ -122,7 +134,7 @@ void* create_RT_socket_server(void* RT_port){
             continue;  
         }  
         n = recv(connect_fd, buffer, 4096, 0); 
-        buffer[n]='\0';
+        //buffer[n]='\0';
         RT_handle_package(buffer,n);
         close(connect_fd);  
     }  
@@ -186,8 +198,8 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
 #ifdef __RT_TCPIP_TRANSMIT
     port_con* p_RT_port=(port_con*)RT_port;
     UINT port=p_RT_port->port+1;
-    int    sockfd, n,recv_len;  
-    struct sockaddr_in    servaddr;
+    int sockfd,recv_len;  
+    struct sockaddr_in  servaddr;
     //第一次要初始化RT端口
     if( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){  
         printf("create socket error: %s(errno: %d)\n", strerror(errno),errno);  
@@ -218,9 +230,6 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
             printf("create socket error: %s(errno: %d)\n", strerror(errno),errno);  
             exit(0);  
         }  
-        //memset(&servaddr, 0, sizeof(servaddr));  
-        //servaddr.sin_family = AF_INET;  
-        //servaddr.sin_port = htons(port); 
         memset(ret_buff,0,4096);
         pack_package(ret_buff,4096,&ret_size);
         if(ret_size==0){
@@ -258,22 +267,9 @@ void* create_RT_ret_socket_client(void* RT_port){//以原port+1发
         sleep_ms(100);
         memset(ret_buff,0,4096);
         pack_package(ret_buff,4096,&ret_size);
-        int i=0;
         if(ret_size==0)
             continue;
-        frame=serial_frame(VCAN_SIZE_FRAME_FLAG,NULL,ret_size);
-        RT_send_frame(frame);
-        sleep_ms(10);
-        UINT frame_size_tmp;
-        //printf("ret_size:%d\n",ret_size);
-        for(i=0;i<ret_size;){
-	        frame_size_tmp = (ret_size-i)>8?8:(ret_size-i);
-            //printf("frame_size_tmp:%d\n",frame_size_tmp);
-            frame=serial_frame(VCAN_DATA_FRAME_FLAG,ret_buff+i,frame_size_tmp);
-            i+=frame_size_tmp;
-            RT_send_frame(frame);
-            sleep_ms(10);
-        }
+        RT_send_package(ret_buff,ret_size);
     }
 #endif
 }
@@ -303,226 +299,8 @@ void* get_one_port_con(){
 */
 
 
-/*********************************************************
- *
- *generate_data_*函数模拟设备产生数据
- *
- *********************************************************/
-void* generate_data_1(void* argc){
-#ifdef PTHREAD_RECYCLE
-    pthread_detach(pthread_self());
-#endif
-    printf("1号数据源即将产生数据\n");
-    sleep_ms(5000);
-    int turns=2;
-    while(turns--){
-    sleep_ms(1000);
-    unsigned char recv_buffer[5];
-    static double d=20.005;
-    static int d1=20;
-    int d2=5;
-    int d3=3;
-    UINT size;
-    UINT time;
-    UINT cnt=TIMES;
-    timeStamp t;
-    while(cnt--){
-        recv_buffer[0]=d1;
-        recv_buffer[1]=d2;
-        recv_buffer[2]=d3;
-        recv_buffer[3]='\0';
-        time=m_random();
-        sleep_ms(100*time);
-        write_write_buffer(8001,recv_buffer,strlen(recv_buffer),&size);
-        if(size!=3)printf("generate data err!\n");
-        get_current_time(&t);
-        printf("位置：RT，类型：发送；数据：%f；大小：%d；端口：%d    时间戳：%d/%d/%d\n",d,size,8001,((timeStamp*)&t)->hour,((timeStamp*)&t)->minute,((timeStamp*)&t)->second);
-        add_string(SEND,d,8001);
-        //d=20.005+(time%10);
-        //d1=20+(time%10);
-    }
-    }
-    set_is_end();
-}
-
-void* generate_data_2(void* argc){
-#ifdef PTHREAD_RECYCLE
-    pthread_detach(pthread_self());
-#endif
-    printf("2号数据源即将产生数据\n");
-    sleep_ms(5000);
-    int turns=2;
-    while(turns--){
-    sleep_ms(1000);
-    unsigned char recv_buffer[5];
-    static double d=30.01;
-    static int d1=30;
-    int d2=1;
-    int d3=2;
-    UINT size;
-    UINT time;
-    UINT cnt=TIMES;
-    timeStamp t;
-    while(cnt--){
-        recv_buffer[0]=d1;
-        recv_buffer[1]=d2;
-        recv_buffer[2]=d3;
-        recv_buffer[3]='\0';
-        time=m_random();
-        sleep_ms(100*time);
-        write_write_buffer(8002,recv_buffer,strlen(recv_buffer),&size);
-        if(size!=3)printf("generate data err!\n");
-        get_current_time(&t);
-        printf("位置：RT，类型：发送；数据：%f；大小：%d；端口：%d    时间戳：%d/%d/%d\n",d,size,8002,((timeStamp*)&t)->hour,((timeStamp*)&t)->minute,((timeStamp*)&t)->second);
-        add_string(SEND,d,8002);
-        //d=30.01+(time%10);
-        //d1=30+(time%10);
-    }
-    }
-    set_is_end();
-}
-
-void* generate_data_4(void* argc){
-#ifdef PTHREAD_RECYCLE
-    pthread_detach(pthread_self());
-#endif
-    printf("4号数据源即将产生数据\n");
-    sleep_ms(5000);
-    int turns=2;
-    while(turns--){
-    sleep_ms(1000);
-    unsigned char recv_buffer[5];
-    static int d=4;
-    UINT size;
-    UINT time;
-    UINT cnt=TIMES;
-    timeStamp t;
-    while(cnt--){
-        recv_buffer[0]=d;
-        recv_buffer[1]='\0';
-        time=m_random();
-        sleep_ms(100*time);
-        write_write_buffer(8004,recv_buffer,strlen(recv_buffer),&size);
-        if(size!=1)printf("generate data err!\n");
-        get_current_time(&t);
-        printf("位置：RT，类型：发送；数据：%d；大小：%d；端口：%d    时间戳：%d/%d/%d\n",recv_buffer[0],size,8004,((timeStamp*)&t)->hour,((timeStamp*)&t)->minute,((timeStamp*)&t)->second);
-        add_string(SEND,recv_buffer[0],8004);
-        //d++;
-    }
-    }
-    set_is_end();
-}
-
-void* generate_data_5(void* argc){
-#ifdef PTHREAD_RECYCLE
-    pthread_detach(pthread_self());
-#endif
-    printf("5号数据源即将产生数据\n");
-    sleep_ms(5000);
-    int turns=2;
-    while(turns--){
-    sleep_ms(1000);
-    unsigned char recv_buffer[5];
-    static int d=5;
-    UINT size;
-    UINT time;
-    UINT cnt=TIMES;
-    timeStamp t;
-    while(cnt--){
-        recv_buffer[0]=d;
-        recv_buffer[1]='\0';
-        time=m_random();
-        sleep_ms(100*time);
-        write_write_buffer(8005,recv_buffer,strlen(recv_buffer),&size);
-        if(size!=1)printf("generate data err!\n");
-        get_current_time(&t);
-        printf("位置：RT，类型：发送；数据：%d；大小：%d；端口：%d    时间戳：%d/%d/%d\n",recv_buffer[0],size,8005,((timeStamp*)&t)->hour,((timeStamp*)&t)->minute,((timeStamp*)&t)->second);
-        add_string(SEND,recv_buffer[0],8005);
-        //d++;
-    }
-    }
-    set_is_end();
-}
-
-void* generate_data_6(void* argc){
-#ifdef PTHREAD_RECYCLE
-    pthread_detach(pthread_self());
-#endif
-    printf("6号数据源即将产生数据\n");
-    sleep_ms(5000);
-    int turns=2;
-    while(turns--){
-    sleep_ms(1000);
-    unsigned char recv_buffer[5];
-    static int d=6;
-    UINT size;
-    UINT time;
-    UINT cnt=TIMES;
-    timeStamp t;
-    while(cnt--){
-        recv_buffer[0]=d;
-        recv_buffer[1]='\0';
-        time=m_random();
-        sleep_ms(100*time);
-        write_write_buffer(8006,recv_buffer,strlen(recv_buffer),&size);
-        if(size!=1)printf("generate data err!\n");
-        get_current_time(&t);
-        printf("位置：RT，类型：发送；数据：%d；大小：%d；端口：%d    时间戳：%d/%d/%d\n",recv_buffer[0],size,8006,((timeStamp*)&t)->hour,((timeStamp*)&t)->minute,((timeStamp*)&t)->second);
-        add_string(SEND,recv_buffer[0],8006);
-        //d++;
-    }
-    }
-    set_is_end();
-}
-
-void* generate_data_7(void* argc){
-#ifdef PTHREAD_RECYCLE
-    pthread_detach(pthread_self());
-#endif
-    printf("7号数据源即将产生数据\n");
-    sleep_ms(5000);
-    int turns=2;
-    while(turns--){
-    sleep_ms(1000);
-    unsigned char recv_buffer[5];
-    static int d=7;
-    UINT size;
-    UINT time;
-    UINT cnt=TIMES;
-    timeStamp t;
-    while(cnt--){
-        recv_buffer[0]=d;
-        recv_buffer[1]='\0';
-        time=m_random();
-        sleep_ms(100*time);
-        write_write_buffer(8007,recv_buffer,strlen(recv_buffer),&size);
-        if(size!=1)printf("generate data err!\n");
-        get_current_time(&t);
-        printf("位置：RT，类型：发送；数据：%d；大小：%d；端口：%d    时间戳：%d/%d/%d\n",recv_buffer[0],size,8007,((timeStamp*)&t)->hour,((timeStamp*)&t)->minute,((timeStamp*)&t)->second);
-        add_string(SEND,recv_buffer[0],8007);
-        //d++;
-    }
-    }
-    set_is_end();
-}
-/*********************************************************
- *
- *generate_data_*函数模拟设备产生数据
- *
- *********************************************************/
-
-void generate_data(void){
-    pthread_t tid;
-    pthread_create(&tid,NULL,generate_data_1,NULL);
-    pthread_create(&tid,NULL,generate_data_2,NULL);
-    pthread_create(&tid,NULL,generate_data_4,NULL);
-    pthread_create(&tid,NULL,generate_data_5,NULL);
-    pthread_create(&tid,NULL,generate_data_6,NULL);
-    pthread_create(&tid,NULL,generate_data_7,NULL);
-}
-
 //下面两个函数创建RT的socket
-void* RT_socket_pthread_func(void* p_RT_config){
+int RT_socket_pthread_func(void* p_RT_config){
 #ifdef PTHREAD_RECYCLE
     pthread_detach(pthread_self());
 #endif
@@ -531,9 +309,10 @@ void* RT_socket_pthread_func(void* p_RT_config){
     err=pthread_create(&tid,NULL,create_RT_socket_server,p_RT_config);
     if(err!=0)
         throw_event(0,NULL,EVT_CREATE_THREAD_ERR);
+    return err;
 }
 
-void* RT_ret_socket_pthread_func(void* p_RT_config){
+int RT_ret_socket_pthread_func(void* p_RT_config){
 #ifdef PTHREAD_RECYCLE
     pthread_detach(pthread_self());
 #endif
@@ -542,21 +321,24 @@ void* RT_ret_socket_pthread_func(void* p_RT_config){
     err=pthread_create(&tid,NULL,create_RT_ret_socket_client,p_RT_config);
     if(err!=0)
         throw_event(0,NULL,EVT_CREATE_THREAD_ERR);
-        //printf("RT 发端创建线程失败...\n");
+    return err;
 }
 
 void create_RT_unit(void* p_RT_config){
-    pthread_t tid1;
-    pthread_t tid2;
-    UINT err1,err2=0;
-    err1=pthread_create(&tid1,NULL,RT_socket_pthread_func,p_RT_config);
-    err2=pthread_create(&tid2,NULL,RT_ret_socket_pthread_func,p_RT_config);
+    int err1,err2=0;
+    err1=RT_socket_pthread_func(p_RT_config);
+    err2=RT_ret_socket_pthread_func(p_RT_config);
     if(err1!=0||err2!=0)
         throw_event(0,NULL,EVT_CREATE_THREAD_ERR);
     else printf("成功启动一个RT模拟端口,端口号:%d...\n",((port_con*)p_RT_config)->port);
 }
 
 void initialize_RT(void){
+    init_event_repos_array();
+    UINT event_repos_id;
+    get_one_event_repos(&event_repos_id);
+    /*创建事件库扫描线程,事件库一个就够了*/
+    create_evt_repos_scan_unit();
 #ifdef __RT_TCPIP_TRANSMIT
     //初始化端口号为7000的socket线程作为创建其他线程的基线程
     int    sockfd,recv_len;  

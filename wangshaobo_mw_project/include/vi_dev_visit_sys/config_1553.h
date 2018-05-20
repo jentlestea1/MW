@@ -16,7 +16,6 @@ typedef struct config_node{
     UINT len;
     char RT_lid_array[RT_LID_ARRAY_MAX_SIZE][ATTR_LID_VALUE_MAX_LEN];
     UINT port_array[PORT_ARRAY_MAX_SIZE];
-    //UINT sub_port_array[PORT_ARRAY_MAX_SIZE];//这里只支持一对一
     UINT light_pos_array[LIGHT_POS_ARRAY_MAX_SIZE];
 }config_node;
 void config_1553(void);
@@ -26,7 +25,6 @@ char* get_config_node_bus_lid(void* p_config_node);
 UINT  get_config_node_traffic_repos_id(void* p_config_node);
 UINT  get_config_node_len(void* p_config_node);
 UINT  get_config_node_port(void* p_config_node,UINT pos);
-//UINT  get_config_node_sub_port(void* p_config_node,UINT pos);
 char* get_config_node_RT_lid(void* p_config_node,UINT pos);
 UINT  get_config_node_light_pos(void* p_config_node,UINT pos);
 UINT get_config_len(void);

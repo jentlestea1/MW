@@ -41,18 +41,9 @@ void *get_sync_collect(SYNC_TYPE type,UINT d1,UINT d2,char *s1){
     void *p=get_hash_value(type,d1,d2,s1);
     if(p==NULL){
        sync_collection *sync=(sync_collection *)malloc(sizeof(sync_collection));
-//#ifdef __GCC_C99
-       //pthread_mutex_t flag_mutex= PTHREAD_MUTEX_INITIALIZER;
-       //pthread_mutex_t mutex= PTHREAD_MUTEX_INITIALIZER;
-       //pthread_cond_t cond= PTHREAD_COND_INITIALIZER;
-       //sync->cond = cond;
-       //sync->flag_mutex = flag_mutex;
-       //sync->mutex = mutex;
-//#elif __SPARC_GCC_MMU
        pthread_mutex_init(&(sync->flag_mutex),NULL);
        pthread_mutex_init(&(sync->mutex),NULL);
        pthread_cond_init(&(sync->cond),NULL);
-//#endif
        sync->flag=FLAG1;
        p=sync;
        HASHKEY key= get_hash_key(type,d1,d2,s1);
@@ -64,7 +55,6 @@ void *get_sync_collect(SYNC_TYPE type,UINT d1,UINT d2,char *s1){
 void vi_signal(void *p){
     if(p==NULL){
         throw_event(0,NULL,EVT_VI_SIGNAL_ERR);
-        //printf("传入的sync为空\n");
         return;
     }
     sync_collection *p_tmp=(sync_collection *)p;
@@ -76,7 +66,6 @@ void vi_signal(void *p){
 void vi_wait(void *p){
     if(p==NULL){
         throw_event(0,NULL,EVT_VI_WAIT_ERR);
-        //printf("传入的sync为空\n");
         return;
     }
     sync_collection *p_tmp=(sync_collection *)p;

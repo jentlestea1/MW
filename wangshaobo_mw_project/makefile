@@ -16,6 +16,7 @@ vpath %.c ./src/type/
 vpath %.c ./src/mxml/
 vpath %.c ./src/semaphore/
 vpath %.c ./src/interval
+vpath %.c ./src/dev
 vpath %.h ./include/type/
 vpath %.h ./include/app/
 vpath %.h ./include/RT/
@@ -70,7 +71,7 @@ BC_OBJ = main.o manage_transport_center.o app.o BC_socket.o BC_control.o package
 		 mxml-node.o mxml-private.o mxml-search.o mxml-set.o mxml-string.o
 		 
 
-RT_OBJ = RT_socket.o RT_control.o RT.o relevant_struct_def_rt.o vcan_frame_rt.o file.o handle_event_rt.o \
+RT_OBJ = RT_socket.o RT_control.o dev.o relevant_struct_def_rt.o vcan_frame_rt.o file.o handle_event_rt.o \
 		 event_rt.o
 
 all : PRE_OPERA BC.out RT.out

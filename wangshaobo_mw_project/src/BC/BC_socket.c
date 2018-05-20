@@ -44,7 +44,7 @@ void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){
     void* p_config_node_tmp=get_config_node(config_id);
     UINT traffic_repos_id=get_config_node_traffic_repos_id(p_config_node_tmp);
     while(1){
-    //需要加同步锁模块，节省cpu资源
+    /*死等*/
     //if(!get_buffer_is_avail(config_id,RT_config_id))continue;
     vi_wait(p_sync);
     if( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){  
@@ -58,6 +58,7 @@ void create_bus_socket_client(UINT config_id,UINT RT_config_id,UINT port){
     printf("bus--connect error: %s(errno: %d)\n",strerror(errno),errno);  
     exit(0);  
     }
+    /*下面是使用死等的方式检测是否有数据传送*/
     //if(get_buffer_is_avail(config_id,RT_config_id)){
     //    set_buffer_unavail(config_id,RT_config_id);
     //        if(send(sockfd,read_buf_1553[config_id],read_buf_1553_size[config_id],0) == -1)  
@@ -157,7 +158,6 @@ void create_bus_socket_server(UINT config_id,UINT port)  //原port+1用来接受
                 }
             }
             else{
-                //printf("recv: %d\n",recv_len);
                 ctrl_unpack_package_to_1553(traffic_repos_id,port,recv_buffer,recv_len);
             }
         }  
@@ -295,17 +295,14 @@ UINT get_RT_addr_array(UINT * buf){
        for(j=0;j<RT_num;j++){
             UINT port_tmp=get_config_node_port(p_config_node_tmp,j);
             buf[count++]=port_tmp;
-            //printf("%d ",port_tmp);
        }
     }
-    //printf("\ncount:%d\n",count);
     return count;
 }
 
 
 void initialize_communicate(){
 #ifdef __TCPIP_TRANSMIT
-    //printf("in initialize_communicate\n");
     int    socket_fd, connect_fd;  
     struct sockaddr_in  servaddr;  
     unsigned char buffer[4096];  
@@ -334,12 +331,10 @@ void initialize_communicate(){
     buffer[recv_len] = '\0';
     if(recv_len!=0){
         if(buffer[1]==0x0&&buffer[2]==0xff){
-            //发送端口列表给RT
             memset(buffer,0,4096);
             UINT port_len=get_RT_addr_array((UINT *)(buffer+8));
             *(UINT *)(buffer+4)=port_len;
             *(UINT *)buffer=(port_len+1)*sizeof(int);
-            //printf("%d %d",*(UINT *)(buffer),*(UINT *)(buffer+4));
             if(send(connect_fd,buffer,4096,0) == -1)  
                 perror("发送RT端口列表给RT失败\n");
         }
@@ -357,7 +352,6 @@ void initialize_communicate(){
 void initialize_BC(){
     int i=0;
     UINT len=get_config_len();
-    //printf("len:%d\n",len);
     for(i=0;i<len;i++){
        scan_config* p_scan_config_tmp=(scan_config*)malloc(sizeof(scan_config));
        p_scan_config_tmp->config_id=i;
@@ -365,7 +359,6 @@ void initialize_BC(){
        void* p_config_node_tmp=get_config_node(i);
        UINT RT_num=get_config_node_len(p_config_node_tmp);
        UINT j=0;
-       //printf("RT num:%d\n",RT_num);
        /*1553模拟器所需的部分*/
        for(;j<RT_num;j++){
            UINT port_tmp=get_config_node_port(p_config_node_tmp,j);

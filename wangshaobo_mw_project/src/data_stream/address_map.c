@@ -11,10 +11,8 @@
 
 static f_index_list index_list_f;
 static s_index_list *index_list_s;
-//static s_index_list index_list_s[S_INDEX_LIST_MAX_NUM];
 static UINT index_list_s_len=0;
 static t_index_list *index_list_t;
-//static t_index_list index_list_t[T_INDEX_LIST_MAX_NUM];
 static UINT index_list_t_len=0;
 
 
@@ -180,7 +178,6 @@ void app_read_data(char* bus_type,char* bus_lid,char* RT_lid,char* dev_lid,void*
 
 void app_write_data(char* bus_type,char* bus_lid,char* RT_lid,char*dev_lid,void* buffer,UINT writeSize,UINT* size){
     *size=0;
-    //printf("buffer0:%c\n",((dataNode*)buffer)->dataPiece);
     void* p=get_t_index_node(bus_type,bus_lid,RT_lid,dev_lid);
     void* s_p=get_read_addr_s(p);
     void* e_p=get_read_addr_e(p);
@@ -273,7 +270,6 @@ void* get_write_addr_work_p(void* p_t_index_node){
 }
 
 void set_index_node_pointer(void* t_index_node_p,bool isRead,void* e_p,void* s_p,void* w_p){
-    //printf("set:%d:%d:%d\n",s_p,e_p,w_p);
     if(isRead==true){
         ((t_index_node*)t_index_node_p)->addr_read_e=(dataNode*)e_p;
         ((t_index_node*)t_index_node_p)->addr_read_s=(dataNode*)s_p;

@@ -13,7 +13,6 @@
  * 将数据写到对应转存区域 
  */
 void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf_size,char* bus_type,char* bus_lid,char* RT_lid){
-    //printf("准备解包数据，数据大小:%d\n",strlen(buffer));
     //前4个字节为帧的大小
 #ifdef __TCPIP_TRANSMIT
     buffer+=PACKAGE_HEADER_SIZE_LEN;
@@ -34,20 +33,14 @@ void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf
     char* dev_lid=get_priority_deterio_dev_lid(bus_type,bus_lid,RT_lid,SEND_PRIORITY_FLAG,prev_priority,&cur_prio,&anchor);
     prev_priority=cur_prio;
     while(strcmp(dev_lid,"")!=0){
-        //UINT is_valid=*(buffer+buffer_pos)/DATA_BLOCK_VALID_PREFIX;
-        //unsigned char is_valid=*(buffer+buffer_pos)&DATA_BLOCK_ISVALID_MASK;
-        //printf("0x%x\n",*(buffer+buffer_pos));
-        //printf("--0x%x\n",*(buffer+buffer_pos)&DATA_BLOCK_ISVALID_MASK);
         if((*(buffer+buffer_pos)&DATA_BLOCK_ISVALID_MASK)==DATA_BLOCK_VALID_PREFIX){
             block_size=*(buffer+buffer_pos)%DATA_BLOCK_VALID_PREFIX;
-            //printf("-%d- block_size:%d\n",++cnt,block_size);
             buffer_pos++;
             ctrl_dev_write_data(traffic_repos_id,dev_lid,buffer+buffer_pos,block_size,&size);
             if(size!=block_size){
                 printf("write err!");
                 return;
             }
-            //printf("收到 dev_lid:%s size:%d\n",dev_lid,size);
             buffer_pos+=block_size;
         }
         else{
@@ -66,7 +59,7 @@ void unpack_package_to_1553(UINT traffic_repos_id,unsigned char* buffer,UINT buf
 }
 
 /*
- *改函数将转存区域的数据打包给BC
+ *函数将转存区域的数据打包给BC
  */
 void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,char* bus_lid,char* RT_lid,unsigned char* buffer_1553,UINT* buffer_size){
     UINT cur_prio=0;
@@ -102,7 +95,6 @@ void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,ch
         else{
             is_send_valid=true;
             *(buffer_tmp+buffer_pos)=size;
-            //--printf("---发送 dev_lid:%s\n",dev_lid);
             *(buffer_tmp+buffer_pos)|=DATA_BLOCK_VALID_PREFIX;
             buffer_pos++;
             memcpy(buffer_tmp+buffer_pos,read_buffer,size);
@@ -124,12 +116,6 @@ void pack_package_to_1553(UINT traffic_repos_id,UINT light_pos,char* bus_type,ch
         buffer_tmp[buffer_pos]='\0';
         strcpy(buffer_1553,buffer_tmp);
 #endif
-        /*int i=0;
-        for(i=0;i<buffer_pos;i++){
-            printf("%d ",buffer_1553[i]);
-        }
-        printf("\n");
-        */
     }
     else{
         *buffer_size=0;

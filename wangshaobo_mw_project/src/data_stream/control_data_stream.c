@@ -81,13 +81,12 @@ void read_data(char* dev_lid,unsigned char* buffer,UINT buffer_size,UINT* size,v
         flag=get_sync_collect_flag(p,false);
         if(flag==FLAG1){
             write_sync_collect_flag(p,FLAG2,false);   //FLAG1正常，FLAG2阻塞
-            flag=get_sync_collect_flag(p,false);
             vi_wait(p);
             write_sync_collect_flag(p,FLAG1,false);
-            flag=get_sync_collect_flag(p,false);
         }
         else {
-            printf("dev_lid:%s 上次更改flag有误\n",dev_lid);
+            write_sync_collect_flag(p,FLAG1,false);
+            throw_event(0,NULL,EVT_SYNC_FLAG_WRITE_ERR);
         }
     }
     UINT read_block_size=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,SEND_BLOCK_FLAG);
@@ -122,7 +121,6 @@ void write_data(char* dev_lid,unsigned char* buffer,UINT buffer_size,UINT* size)
     char* RT_lid=get_route_RT_lid(r);
     UINT send_block_size=get_dev_trans_attr(bus_type,bus_lid,RT_lid,dev_lid,RECEIVE_BLOCK_FLAG);
     if(send_block_size>buffer_size){
-        //printf("send_blocksize:%d buffer_size:%d\n",send_block_size,buffer_size);
         *size=0;
         throw_event(0,RT_lid,EVT_APP_WRITE_BLOCK_OVERFLOW);
         return;//抛出事件

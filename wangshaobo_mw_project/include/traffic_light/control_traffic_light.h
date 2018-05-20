@@ -26,8 +26,6 @@ bool is_RT_section_writeable(UINT traffic_repos_id,UINT light_pos);
 bool is_dev_readable(UINT traffic_repos_id,UINT light_pos,UINT dev_pos);
 bool is_red_light(UINT traffic_repos_id,UINT light_pos,char* dev_lid);
 UINT scan_RT_section(UINT traffic_repos_id);
-//UINT get_traffic_repos_list_len(UINT traffic_repos_id);
 UINT get_scan_pos(UINT traffic_repos_id);
-//char* get_light_dev_lid_t(UINT traffic_repos_id,UINT light_pos,UINT dev_pos);
 char* get_RT_section_RT_lid(UINT traffic_repos_id,UINT light_pos);
 #endif

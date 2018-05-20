@@ -16,7 +16,6 @@
 #define READ_REGION_MAX_SIZE 0x400
 #define WRITE_REGION_MAX_SIZE 0x400
 
-//静态分配改为动态分配
 
 typedef struct t_index_node{
     char dev_lid[ATTR_LID_VALUE_MAX_LEN];
@@ -30,7 +29,6 @@ typedef struct t_index_node{
 typedef struct t_index_list{
     UINT t_node_len;
     t_index_node* t_node;
-    //t_index_node t_node[T_INDEX_LIST_MAX_LEN];
 }t_index_list;
 typedef struct s_index_node{
     char RT_lid[ATTR_LID_VALUE_MAX_LEN];
@@ -39,7 +37,6 @@ typedef struct s_index_node{
 typedef struct s_index_list{
     UINT s_node_len;
     s_index_node* s_node;
-    //s_index_node s_node[S_INDEX_LIST_MAX_LEN];
 }s_index_list;
 typedef struct f_index_node{
     char bus_type[ATTR_TYPE_VALUE_MAX_LEN];
@@ -49,7 +46,6 @@ typedef struct f_index_node{
 typedef struct f_index_list{
     UINT f_node_len;
     f_index_node* f_node;
-    //f_index_node f_node[F_INDEX_LIST_MAX_LEN];
 }f_index_list;
 void create_index_list(void);
 bool is_write_region_empty(char* bus_type,char* bus_lid,char* RT_lid,char* dev_lid);

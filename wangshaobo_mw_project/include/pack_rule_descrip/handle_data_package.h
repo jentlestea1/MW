@@ -32,16 +32,13 @@ typedef struct RT_trans_rule{
     char RT_lid[ATTR_LID_VALUE_MAX_LEN];
     UINT info_section_len;
     dev_trans_data_info *info_section;
-    //dev_trans_data_info info_section[DEV_TRANS_DATA_INFO_MAX_LEN];
 }RT_trans_rule;
 typedef struct data_trans_rule_form{
     char bus_lid[ATTR_LID_VALUE_MAX_LEN];
     char bus_type[ATTR_TYPE_VALUE_MAX_LEN];
     UINT rule_section_len;
     RT_trans_rule *rule_section;
-    //RT_trans_rule rule_section[RT_TRANS_RULE_MAX_LEN];
 }data_trans_rule_form;
-//static UINT priority_deterio_pos=0;
 void create_data_trans_rule_form(void);
 void print_form();
 UINT get_form_num();

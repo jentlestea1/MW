@@ -128,10 +128,8 @@ void pack_package(unsigned char* buffer,UINT buffer_len,UINT* buffer_size){
         read_write_buffer(pos,read_buffer_tmp,read_size,&size);
         if(size!=0)is_send_valid=true;
         tmp=size;
-        //----if(size!=0)printf("port:%d size:%d\n",get_child_port(pos),size);
         tmp|=RT_DATA_BLOCK_VALID_PREFIX;
         *(p_buffer_data+buffer_pos)=tmp;
-        //*(p_buffer_data+buffer_pos)|=RT_DATA_BLOCK_VALID_PREFIX;
         buffer_pos++;
         if(buffer_pos>=buffer_len){   //如果这里出错，可以适当增大发送频率或者缓冲区大小
             is_send_valid=false;
@@ -199,9 +197,7 @@ void RT_handle_package(UCHAR *buffer,UINT n){
                 }
                 else{
                     throw_event(0,NULL,RT_EVT_HANDLE_PACKAGE_ERR);
-                    //printf("port_pos大小出错\n");
                 }
-                //printf("\n----------port为%d的RT捕获到数据：%s发送给child_port:%d端口------------\n",port,send_buffer,child_port);
                 double d;
                 /*测试用*/
                 if(child_port==8003){
@@ -222,7 +218,6 @@ void RT_handle_package(UCHAR *buffer,UINT n){
             }
             if(pos!=n){
                 throw_event(0,NULL,RT_EVT_HANDLE_PACKAGE_ERR);
-                //printf("ERR:传输内容有误\n");
             }
 	}
 }
