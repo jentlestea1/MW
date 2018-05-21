@@ -1,4 +1,4 @@
-test/test*
+DevicePnP/test/test*
 *.swp
 .depend*
 *.o
