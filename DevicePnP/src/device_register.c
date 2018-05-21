@@ -7,8 +7,6 @@
 #include <malloc.h>
 #include <stdio.h>
 
-static const char* file = "device_register.c";
-
 
 int register_devices(void)
 {

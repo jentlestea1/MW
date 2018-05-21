@@ -6,8 +6,6 @@
 #include "error_report.h"
 #include <stdio.h>
 
-static const char* file = "driver_bind.c";
-
 int bind_drivers(void)
 {
    int i;

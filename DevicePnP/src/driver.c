@@ -3,8 +3,6 @@
 #include <malloc.h>
 #include <string.h>
 
-static const char* file = "driver.c";
-
  
 // 定义设备驱动索引表
 static struct driver_node* driver_index_table[MAX_DEVICE_TYPE];
